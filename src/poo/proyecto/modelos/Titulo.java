@@ -4,8 +4,8 @@ package poo.proyecto.modelos;
 public abstract class Titulo {
 
     private final String simbolo;
-    private final double valorInicial;
-    private double valor;
+    protected final double valorInicial;
+    protected double valor;
 
     public Titulo(String simbolo, double valorInicial) {
         this.simbolo = simbolo;
