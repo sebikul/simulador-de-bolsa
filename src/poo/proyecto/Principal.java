@@ -13,9 +13,9 @@ public class Principal {
         //TODO variacion en el precio de cada accion
 
 
-        CmdSimulador simulador = new CmdSimulador();
+        CmdSimulador simulador1 = new CmdSimulador();
 
-        simulador.start();
+        simulador1.start();
 
 
     }
