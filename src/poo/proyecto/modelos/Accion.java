@@ -3,6 +3,9 @@ package poo.proyecto.modelos;
 
 public class Accion extends Titulo {
 
+    //private long volumen;
+
+
     public Accion(String simbolo, double valorInicial) {
         super(simbolo, valorInicial);
     }
@@ -10,16 +13,6 @@ public class Accion extends Titulo {
     @Override
     public final String getName() {
         return this.getClass().getName();
-    }
-
-    //TODO
-    public void notifyCompra(int cant){
-
-    }
-
-    //TODO
-    public void notifyVenta(int cant){
-
     }
 
 

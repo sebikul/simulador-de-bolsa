@@ -21,7 +21,7 @@ public class Bono extends Titulo {
     }
 
     //TODO
-    public double calcularDividendo(){
+    public double calcularDividendo() {
 
         return 0;
     }

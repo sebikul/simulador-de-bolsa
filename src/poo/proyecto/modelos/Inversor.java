@@ -1,119 +1,126 @@
 package poo.proyecto.modelos;
 
-import poo.proyecto.exceptions.CapitalInsuficienteException;
-import poo.proyecto.exceptions.TituloNoExisteException;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import poo.proyecto.exceptions.TituloNoExisteException;
+
 public class Inversor {
 
-    private final String nombre;
-    private final HashMap<String, EntradaCartera> cartera;
-    private double capital;
-    private double riesgo = 0.5;
+	private final String nombre;
+	private final HashMap<String, EntradaCartera> cartera;
+	private double capital;
+	private double riesgo = 0.5;
+	private AgenteDeBolsa agente;
 
-    public Inversor(String nombre, double capital) {
+	public Inversor(String nombre, double capital, AgenteDeBolsa agente) {
 
-        this.capital = capital;
-        this.nombre = nombre;
-        this.cartera = new HashMap<String, EntradaCartera>();
-    }
+		this.capital = capital;
+		this.nombre = nombre;
+		this.cartera = new HashMap<String, EntradaCartera>();
+		this.agente = agente;
+	}
 
-    public final Map<String,EntradaCartera> getTitulos() {
-        return Collections.unmodifiableMap(cartera);
-    }
+	public final Map<String, EntradaCartera> getTitulos() {
+		return Collections.unmodifiableMap(cartera);
+	}
 
-    public void comprarTitulo(Mercado mercado, String simbolo, int cantidad) throws TituloNoExisteException, CapitalInsuficienteException {
+	public final double getCapital() {
+		return capital;
+	}
 
+	public final double getRiesgo() {
+		return riesgo;
+	}
 
-        if (mercado == null || (simbolo == null || (simbolo.isEmpty())) || cantidad < 1) {
-            throw new IllegalArgumentException();
-        }
+	public final void setRiesgo(double riesgo) {
+		if (riesgo <= 0 || riesgo >= 1) {
+			return;
+		}
+		this.riesgo = riesgo;
+	}
 
-        Titulo titulo = mercado.getFromSimbolo(simbolo);
-        double precio = titulo.getValor() * cantidad;
+	public final String getNombre() {
+		return nombre;
+	}
 
+	public String printDebugInfo() {
+		return "Nombre:\t" + this.nombre + "\n" + "Capital:\t$"
+				+ agente.getCapitalFrom(this) + "\n" + "Titulos:\t"
+				+ cartera.toString();
+	}
 
-        if (capital < precio) {
-            throw new CapitalInsuficienteException();
-        }
+	@Override
+	public final String toString() {
+		return this.nombre;
+	}
 
-        capital -= precio;
+	/**
+	 * Notifica al inversor de la compra de un titulo efectuada por el agente.
+	 * 
+	 * Modifica la entrada en la cartera para coincidir con la cantidad
+	 * adquirida.
+	 * 
+	 * @param titulo
+	 * @param cantidad
+	 */
+	public void notificarCompra(Titulo titulo, int cantidad) {
 
-        EntradaCartera entrada = cartera.get(simbolo);
+		if (cartera.containsKey(titulo.getSimbolo())) {
 
-        if (entrada == null) {
-            cartera.put(simbolo, new EntradaCartera(cantidad, titulo));
-        } else {
-            entrada.setAmount(entrada.getAmount() + cantidad);
-        }
+			EntradaCartera entrada = cartera.get(titulo.getSimbolo());
 
-        //FIXME debug
-        System.out.println(nombre + " ha comprado " + cantidad + "*" + simbolo + " por $" + precio + "\t| Capital restante: $" + capital);
+			entrada.setAmount(entrada.getAmount() + cantidad);
+		} else {
+			cartera.put(titulo.getSimbolo(), new EntradaCartera(cantidad,
+					titulo));
+		}
 
+	}
 
-    }
+	/**
+	 * Notifica al inversor de la venta de un titulo efectuada por el agente.
+	 * 
+	 * Modifica la entrada en la cartera para coincidir con la cantidad vendida.
+	 * 
+	 * @param titulo
+	 * @param cantidad
+	 * @throws TituloNoExisteException
+	 */
+	public void notificarVenta(Titulo titulo, int cantidad)
+			throws TituloNoExisteException {
 
-    public void venderTitulo(Mercado mercado, String simbolo, int cantidad) throws CapitalInsuficienteException, TituloNoExisteException {
+		if (cartera.containsKey(titulo.getSimbolo())) {
 
-        if (mercado == null || (simbolo == null || (simbolo.isEmpty())) || cantidad < 1) {
-            throw new IllegalArgumentException();
-        }
+			EntradaCartera entrada = cartera.get(titulo.getSimbolo());
 
-        Titulo titulo = mercado.getFromSimbolo(simbolo);
-        double precio = titulo.getValor() * cantidad;
+			entrada.setAmount(entrada.getAmount() - cantidad);
+		} else {
+			throw new TituloNoExisteException();
+		}
 
-        EntradaCartera entrada = cartera.get(simbolo);
+	}
 
-        if (cantidad <= entrada.getAmount()) {
-            entrada.setAmount(entrada.getAmount() - cantidad);
-        } else {
-            throw new CapitalInsuficienteException();
-        }
+	public AgenteDeBolsa getAgente() {
+		return agente;
+	}
 
-        if (entrada.getAmount() == 0) {
-            cartera.remove(simbolo);
-        }
+	/**
+	 * Transfiere la totalidad del capital al agente de bolsa para que opere a
+	 * su nombre.
+	 * 
+	 * TODO: Basado en el riesgo
+	 * 
+	 * @return
+	 */
+	public Double notificarAsignacionDeAgente() {
 
-        capital += precio;
+		double cap = capital;
 
-        //FIXME debug
-        System.out.println(nombre + " ha vendido " + cantidad + "*" + simbolo + " por $" + precio + "\t| Capital restante: $" + capital);
+		this.capital = 0;
 
+		return cap;
 
-
-    }
-
-    public final double getCapital() {
-        return capital;
-    }
-
-    public final double getRiesgo() {
-        return riesgo;
-    }
-
-    public final void setRiesgo(double riesgo) {
-        if (riesgo <= 0 || riesgo >= 1) {
-            return;
-        }
-        this.riesgo = riesgo;
-    }
-
-    public final String getNombre() {
-        return nombre;
-    }
-
-
-    public String printDebugInfo() {
-        return "Nombre:\t" + this.nombre + "\n" +
-                "Capital:\t$" + this.capital + "\n" +
-                "Titulos:\t" + cartera.toString();
-    }
-
-    @Override
-    public final String toString() {
-        return this.nombre;
-    }
+	}
 }

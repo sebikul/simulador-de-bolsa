@@ -5,50 +5,49 @@ import poo.proyecto.exceptions.NoHayElementosException;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Decididor {
+public class Decididor<T> {
 
-    private final Random random = new Random();
-    private final ArrayList<Decision> decisiones;
+	private final Random random;
+	private final ArrayList<Decision<T>> decisiones;
 
-    public Decididor() {
-        this.decisiones = new ArrayList<Decision>();
-    }
+	public Decididor() {
+		this.random = new Random();
+		this.decisiones = new ArrayList<Decision<T>>();
+	}
 
-    public Decision getDecision() throws NoHayElementosException {
+	public Decision<T> getDecision() throws NoHayElementosException {
 
-        if (decisiones.size() == 0) {
-            throw new NoHayElementosException();
-        }
+		if (decisiones.size() == 0) {
+			throw new NoHayElementosException();
+		}
 
+		int pesoTotal = 0;
+		int i;
 
-        int pesoTotal = 0;
-        int i;
+		for (Decision<T> decision : decisiones) {
+			pesoTotal += decision.getPeso();
+		}
 
-        for (Decision decision : decisiones) {
-            pesoTotal += decision.getPeso();
-        }
+		int seleccion = this.random.nextInt(pesoTotal);
 
-        int seleccion = this.random.nextInt(pesoTotal);
+		pesoTotal = decisiones.get(0).getPeso();
 
-        pesoTotal = decisiones.get(0).getPeso();
+		for (i = 0; (i < (decisiones.size() - 1)) && (pesoTotal <= seleccion); i++) {
+			pesoTotal += decisiones.get(i + 1).getPeso();
+		}
 
-        for (i = 0; (i < (decisiones.size() - 1)) && (pesoTotal <= seleccion); i++) {
-            pesoTotal += decisiones.get(i + 1).getPeso();
-        }
+		return decisiones.get(i);
 
-        return decisiones.get(i);
+	}
 
+	public void addDecision(Decision<T> decision)
+			throws IllegalArgumentException {
 
-    }
+		if (decision == null) {
+			throw new IllegalArgumentException();
+		}
 
-
-    public void addDecision(Decision decision) throws IllegalArgumentException {
-
-        if (decision == null) {
-            throw new IllegalArgumentException();
-        }
-
-        this.decisiones.add(decision);
-    }
+		this.decisiones.add(decision);
+	}
 
 }

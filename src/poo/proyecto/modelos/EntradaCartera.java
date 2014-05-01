@@ -1,39 +1,38 @@
 package poo.proyecto.modelos;
 
-
 public final class EntradaCartera {
 
-    private final Titulo titulo;
-    private int amount;
+	private final Titulo titulo;
+	private int amount;
 
-    public EntradaCartera(int amount, Titulo titulo) {
+	public EntradaCartera(int amount, Titulo titulo) {
 
+		this.amount = amount;
+		this.titulo = titulo;
+	}
 
-        this.amount = amount;
-        this.titulo = titulo;
-    }
+	@Override
+	public String toString() {
+		// return titulo.getSimbolo() + " (" + amount + ")\tVU: $" +
+		// titulo.getValor();
+		return titulo.getSimbolo() + "*" + amount + " (" + titulo.getValor()
+				+ ")";
+	}
 
-    @Override
-    public String toString() {
-        //return titulo.getSimbolo() + " (" + amount + ")\tVU: $" + titulo.getValor();
-        return titulo.getSimbolo() + " (" + titulo.getValor() + ")";
-    }
+	public int getAmount() {
+		return amount;
+	}
 
-    public int getAmount() {
-        return amount;
-    }
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
+	public Titulo getTitulo() {
+		return titulo;
+	}
 
-    public Titulo getTitulo() {
-        return titulo;
-    }
-
-    public String name() {
-        return titulo.getSimbolo();
-    }
-
+	public String name() {
+		return titulo.getSimbolo();
+	}
 
 }
