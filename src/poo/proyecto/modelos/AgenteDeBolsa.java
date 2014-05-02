@@ -6,230 +6,242 @@ import poo.proyecto.exceptions.TituloNoExisteException;
 import poo.proyecto.simulador.Decididor;
 import poo.proyecto.simulador.Decision;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AgenteDeBolsa {
 
-	private final String nombre;
-	private ArrayList<Inversor> clientes = new ArrayList<Inversor>();
-	private HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
-	private double riesgoPersonal = 0.5;
+    private final String nombre;
+    private HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
+    private double riesgoPersonal = 0.5;
 
-	public AgenteDeBolsa(String nombre) {
-		this.nombre = nombre;
+    public AgenteDeBolsa(String nombre) {
+        this.nombre = nombre;
 
-	}
+    }
 
-	public double getCapitalFrom(Inversor inversor) {
+    public Map<Inversor, Double> getClientes() {
+        return Collections.unmodifiableMap(capitalClientes);
+    }
 
-		if (capitalClientes.containsKey(inversor)) {
-			return capitalClientes.get(inversor);
-		}
+    public double getCapitalFrom(Inversor inversor) {
 
-		return 0.0;
+        if (capitalClientes.containsKey(inversor)) {
+            return capitalClientes.get(inversor);
+        }
 
-	}
+        return 0.0;
 
-	public void agregarInversor(Inversor inversor) {
-		clientes.add(inversor);
-		capitalClientes.put(inversor, inversor.notificarAsignacionDeAgente());
-	}
+    }
 
-	/**
-	 * Notifica al agente que debe ejecutar el equivalente a una iteracion en el
-	 * contexto de _mercado_
-	 * 
-	 * @param mercado
-	 */
-	public void notificarIteracion(Mercado mercado) {
+    public void agregarInversor(Inversor inversor) {
 
-		Decididor<Inversor> decididorDeInversores = new Decididor<Inversor>();
-		Decididor<Titulo> decididorDeTitulos = new Decididor<Titulo>();
+        double cap = inversor.getCapitalParaCuenta();
 
-		for (Inversor inversor : clientes) {
-			decididorDeInversores.addDecision(new Decision<Inversor>(inversor,
-					(int) (inversor.getRiesgo() * 100)));
-		}
+        capitalClientes.put(inversor, cap);
 
-		for (Titulo titulo : mercado.getTitulos().values()) {
-			decididorDeTitulos.addDecision(new Decision<Titulo>(titulo,
-					(int) titulo.getValor() + 1));
-		}
+        try {
+            inversor.notificarTransferenciaDeCapital(cap);
+        } catch (CapitalInsuficienteException e) {
+            e.printStackTrace();
+        }
+    }
 
-		try {
-			for (int i = 0; i < clientes.size(); i++) {
+    /**
+     * Notifica al agente que debe ejecutar el equivalente a una iteracion en el
+     * contexto de _mercado_
+     *
+     * @param mercado
+     */
+    public void notificarIteracion(Mercado mercado) {
 
-				Inversor inversor = decididorDeInversores.getDecision()
-						.getObject();
+        Decididor<Inversor> decididorDeInversores = new Decididor<Inversor>();
+        Decididor<Titulo> decididorDeTitulos = new Decididor<Titulo>();
 
-				Titulo titulo = decididorDeTitulos.getDecision().getObject();
+        for (Inversor inversor : capitalClientes.keySet()) {
+            decididorDeInversores.addDecision(new Decision<Inversor>(inversor,
+                    (int) (inversor.getRiesgo() * 100)));
+        }
 
-				try {
-					String simbolo = titulo.getSimbolo();
+        for (Titulo titulo : mercado.getTitulos().values()) {
+            decididorDeTitulos.addDecision(new Decision<Titulo>(titulo,
+                    (int) titulo.getValor() + 1));
+        }
 
-					double capital = capitalClientes.get(inversor);
-					double costo = titulo.getValor();
-					double riesgo = inversor.getRiesgo();
+        try {
+            for (int i = 0; i < capitalClientes.size(); i++) {
 
-					int cantidad = (int) (capital / costo * riesgo);
+                Inversor inversor = decididorDeInversores.getDecision()
+                        .getObject();
 
-					comprarTitulo(inversor, mercado, simbolo, cantidad + 1);
+                Titulo titulo = decididorDeTitulos.getDecision().getObject();
 
-				} catch (TituloNoExisteException e) {
-					e.printStackTrace();
-				} catch (CapitalInsuficienteException e) {
-					//System.out.println(inversor
-					//		+ " no tiene capital suficiente para comprar "
-					//		+ titulo);
-				}
+                try {
+                    String simbolo = titulo.getSimbolo();
 
-			}
+                    double capital = capitalClientes.get(inversor);
+                    double costo = titulo.getValor();
+                    double riesgo = inversor.getRiesgo();
 
-			for (int i = 0; i < clientes.size(); i++) {
+                    int cantidad = (int) (capital / costo * riesgo);
 
-				Inversor inversor = decididorDeInversores.getDecision()
-						.getObject();
+                    comprarTitulo(inversor, mercado, simbolo, cantidad + 1);
 
-				Titulo titulo = decididorDeTitulos.getDecision().getObject();
+                } catch (TituloNoExisteException e) {
+                    e.printStackTrace();
+                } catch (CapitalInsuficienteException e) {
+                    //System.out.println(inversor
+                    //		+ " no tiene capital suficiente para comprar "
+                    //		+ titulo);
+                }
 
-				if (inversor.getTitulos().containsKey(titulo.getSimbolo())) {
-					try {
+            }
 
-						double capital = capitalClientes.get(inversor);
-						double costo = titulo.getValor();
-						double riesgo = inversor.getRiesgo();
+            for (int i = 0; i < capitalClientes.size(); i++) {
 
-						int cantidad = (int) (capital / costo * riesgo);
+                Inversor inversor = decididorDeInversores.getDecision()
+                        .getObject();
 
-						venderTitulo(inversor, mercado, titulo.getSimbolo(),
-								cantidad + 1);
-					} catch (TituloNoExisteException e) {
-						e.printStackTrace();
-					} catch (CapitalInsuficienteException e) {
-						//System.out.println(inversor
-						//		+ " no tiene titulos para vender " + titulo);
-					}
-				}
+                Titulo titulo = decididorDeTitulos.getDecision().getObject();
 
-			}
+                if (inversor.getTitulos().containsKey(titulo.getSimbolo())) {
+                    try {
 
-		} catch (NoHayElementosException e) {
-			e.printStackTrace();
-		}
+                        double capital = capitalClientes.get(inversor);
+                        double costo = titulo.getValor();
+                        double riesgo = inversor.getRiesgo();
 
-	}
+                        int cantidad = (int) (capital / costo * riesgo);
 
-	/**
-	 * Ejecuta la compra de _simbolo_ pedida por _inversor_
-	 * 
-	 * 
-	 * Agregar el titulo a la cartera del cliente.
-	 * 
-	 * Modificar la entrada del capital en la cuenta con el agente.
-	 * 
-	 * @param inversor
-	 * @param mercado
-	 * @param simbolo
-	 * @param cantidad
-	 * @throws TituloNoExisteException
-	 * @throws CapitalInsuficienteException
-	 */
-	public void comprarTitulo(Inversor inversor, Mercado mercado,
-			String simbolo, int cantidad) throws TituloNoExisteException,
-			CapitalInsuficienteException {
+                        venderTitulo(inversor, mercado, titulo.getSimbolo(),
+                                cantidad + 1);
+                    } catch (TituloNoExisteException e) {
+                        e.printStackTrace();
+                    } catch (CapitalInsuficienteException e) {
+                        //System.out.println(inversor
+                        //		+ " no tiene titulos para vender " + titulo);
+                    }
+                }
 
-		if (mercado == null || (simbolo == null || (simbolo.isEmpty()))
-				|| cantidad < 1) {
-			throw new IllegalArgumentException();
-		}
+            }
 
-		Titulo titulo = mercado.getFromSimbolo(simbolo);
-		double precio = titulo.getValor() * cantidad;
+        } catch (NoHayElementosException e) {
+            e.printStackTrace();
+        }
 
-		double capitalViejo = capitalClientes.get(inversor);
+    }
 
-		if (!capitalClientes.containsKey(inversor) || capitalViejo < precio) {
-			throw new CapitalInsuficienteException();
-		}
+    /**
+     * Ejecuta la compra de _simbolo_ pedida por _inversor_
+     * <p/>
+     * <p/>
+     * Agregar el titulo a la cartera del cliente.
+     * <p/>
+     * Modificar la entrada del capital en la cuenta con el agente.
+     *
+     * @param inversor
+     * @param mercado
+     * @param simbolo
+     * @param cantidad
+     * @throws TituloNoExisteException
+     * @throws CapitalInsuficienteException
+     */
+    public void comprarTitulo(Inversor inversor, Mercado mercado,
+                              String simbolo, int cantidad) throws TituloNoExisteException,
+            CapitalInsuficienteException {
 
-		capitalClientes.put(inversor, capitalViejo - precio);
+        if (mercado == null || (simbolo == null || (simbolo.isEmpty()))
+                || cantidad < 1) {
+            throw new IllegalArgumentException();
+        }
 
-		inversor.notificarCompra(titulo, cantidad);
-		mercado.notificarCompra(titulo);
+        Titulo titulo = mercado.getFromSimbolo(simbolo);
+        double precio = titulo.getValor() * cantidad;
 
-		// FIXME debug
-		//System.out.println(inversor.getNombre() + " ha comprado " + cantidad
-		//		+ "*" + simbolo + " por $" + precio + "\t| Capital restante: $"
-		//		+ capitalClientes.get(inversor));
+        double capitalViejo = capitalClientes.get(inversor);
 
-	}
+        if (!capitalClientes.containsKey(inversor) || capitalViejo < precio) {
+            throw new CapitalInsuficienteException();
+        }
 
-	/**
-	 * Ejecuta la venta de _simbolo_ pedida por _inversor_
-	 * 
-	 * @param inversor
-	 * @param mercado
-	 * @param simbolo
-	 * @param cantidad
-	 * @throws CapitalInsuficienteException
-	 * @throws TituloNoExisteException
-	 */
-	public void venderTitulo(Inversor inversor, Mercado mercado,
-			String simbolo, int cantidad) throws CapitalInsuficienteException,
-			TituloNoExisteException {
+        capitalClientes.put(inversor, capitalViejo - precio);
 
-		if (mercado == null || (simbolo == null || (simbolo.isEmpty()))
-				|| cantidad < 1) {
-			throw new IllegalArgumentException();
-		}
+        inversor.notificarCompra(titulo, cantidad);
+        mercado.notificarCompra(titulo);
 
-		Titulo titulo = mercado.getFromSimbolo(simbolo);
-		double precio = titulo.getValor() * cantidad;
+        // FIXME debug
+        //System.out.println(inversor.getNombre() + " ha comprado " + cantidad
+        //		+ "*" + simbolo + " por $" + precio + "\t| Capital restante: $"
+        //		+ capitalClientes.get(inversor));
 
-		double capitalViejo = capitalClientes.get(inversor);
+    }
 
-		if (!capitalClientes.containsKey(inversor)
-				|| cantidad > inversor.getTitulos().get(simbolo).getAmount()) {
+    /**
+     * Ejecuta la venta de _simbolo_ pedida por _inversor_
+     *
+     * @param inversor
+     * @param mercado
+     * @param simbolo
+     * @param cantidad
+     * @throws CapitalInsuficienteException
+     * @throws TituloNoExisteException
+     */
+    public void venderTitulo(Inversor inversor, Mercado mercado,
+                             String simbolo, int cantidad) throws CapitalInsuficienteException,
+            TituloNoExisteException {
 
-			throw new CapitalInsuficienteException();
-		}
+        if (mercado == null || (simbolo == null || (simbolo.isEmpty()))
+                || cantidad < 1) {
+            throw new IllegalArgumentException();
+        }
 
-		capitalClientes.put(inversor, capitalViejo + precio);
+        Titulo titulo = mercado.getFromSimbolo(simbolo);
+        double precio = titulo.getValor() * cantidad;
 
-		inversor.notificarVenta(titulo, cantidad);
-		mercado.notificarVenta(titulo);
+        double capitalViejo = capitalClientes.get(inversor);
 
-		// FIXME debug
-		//System.out.println(inversor.getNombre() + " ha vendido " + cantidad
-		//		+ "*" + simbolo + " por $" + precio + "\t| Capital restante: $"
-		//		+ capitalClientes.get(inversor));
+        if (!capitalClientes.containsKey(inversor)
+                || cantidad > inversor.getTitulos().get(simbolo).getAmount()) {
 
-	}
+            throw new CapitalInsuficienteException();
+        }
 
-	public double getRiesgoPersonal() {
-		return riesgoPersonal;
-	}
+        capitalClientes.put(inversor, capitalViejo + precio);
 
-	public void setRiesgoPersonal(double riesgoPersonal) {
-		this.riesgoPersonal = riesgoPersonal;
-	}
+        inversor.notificarVenta(titulo, cantidad);
+        mercado.notificarVenta(titulo);
 
-	public String printDebugInfo() {
+        // FIXME debug
+        //System.out.println(inversor.getNombre() + " ha vendido " + cantidad
+        //		+ "*" + simbolo + " por $" + precio + "\t| Capital restante: $"
+        //		+ capitalClientes.get(inversor));
 
-		String ret = "Nombre:\t" + this.nombre + "\nClientes:\n\n";
+    }
 
-		for (Inversor inversor : clientes) {
+    public double getRiesgoPersonal() {
+        return riesgoPersonal;
+    }
 
-			ret += inversor.printDebugInfo() + "\n\n";
+    public void setRiesgoPersonal(double riesgoPersonal) {
+        this.riesgoPersonal = riesgoPersonal;
+    }
 
-		}
+    public String printDebugInfo() {
 
-		return ret;
+        String ret = "Nombre:\t" + this.nombre + "\nClientes:\n\n";
 
-	}
+        for (Inversor inversor : capitalClientes.keySet()) {
 
-	public String getNombre() {
-		return nombre;
-	}
+            ret += inversor.printDebugInfo() + "\n\n";
+
+        }
+
+        return ret;
+
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
 }

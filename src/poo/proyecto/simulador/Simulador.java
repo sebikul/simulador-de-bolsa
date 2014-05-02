@@ -1,53 +1,113 @@
 package poo.proyecto.simulador;
 
+import poo.proyecto.exceptions.NoHayElementosException;
+import poo.proyecto.modelos.AgenteDeBolsa;
+import poo.proyecto.modelos.Inversor;
+import poo.proyecto.modelos.Mercado;
+import poo.proyecto.modelos.Titulo;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import poo.proyecto.modelos.AgenteDeBolsa;
-import poo.proyecto.modelos.Mercado;
-
 public abstract class Simulador {
 
-	protected boolean running = false;
+    static public final int DEFAULT_SIM_CYCLES = 365;
+    protected final ArrayList<AgenteDeBolsa> agentes = new ArrayList<AgenteDeBolsa>();
+    protected boolean running = false;
+    private Mercado mercado;
+    private long ciclo = 0;
 
-	protected final ArrayList<AgenteDeBolsa> agentes = new ArrayList<AgenteDeBolsa>();
-	protected final Mercado mercado = new Mercado();
+    public long getCiclo() {
+        return ciclo;
+    }
 
-	public List<AgenteDeBolsa> getAgentes() {
-		return Collections.unmodifiableList(agentes);
-	}
+    public List<AgenteDeBolsa> getAgentes() {
+        return Collections.unmodifiableList(agentes);
+    }
 
-	public Mercado getMercado() {
-		return mercado;
-	}
+    public Mercado getMercado() {
+        return mercado;
+    }
 
-	public abstract void start();
+    public void setMercado(Mercado mercado) throws Exception {
+        if (mercado == null)
+            throw new Exception();
 
-	public void run() {
-		this.running = true;
-	}
+        this.mercado = mercado;
+    }
 
-	public boolean getStatus() {
-		return this.running;
-	}
+    public abstract void start();
 
-	public void stop() {
-		this.running = false;
-	}
+    public void generarAgentes(int cantidad) {
 
-	protected void iterate() {
+        for (int i = 0; i < cantidad; i++) {
+            agentes.add(new AgenteDeBolsa("Agente " + (i + 1)));
+        }
 
-		System.out.println("Comenzando iteracion:");
+    }
 
-		for (AgenteDeBolsa agente : agentes) {
-			agente.notificarIteracion(mercado);
-		}
+    public void generarInversores(int cantidad) {
 
-		System.out.println("Finalizando iteracion.\n");
 
-	}
+        Decididor<AgenteDeBolsa> decididorDeAgentes = new Decididor<AgenteDeBolsa>();
 
-	public abstract void mainLoop();
+        for (AgenteDeBolsa agente : agentes) {
+            decididorDeAgentes.addDecision(new Decision<AgenteDeBolsa>(agente, 1));
+        }
+
+        AgenteDeBolsa agente;
+
+        for (int i = 0; i < cantidad; i++) {
+
+
+            try {
+                agente = decididorDeAgentes.getDecision().getObject();
+            } catch (NoHayElementosException e) {
+                e.printStackTrace();
+                break;
+            }
+
+            agente.agregarInversor(new Inversor("Inversor " + (i + 1), 1000, agente));
+        }
+
+    }
+
+    public void run() {
+        this.running = true;
+    }
+
+    public boolean getStatus() {
+        return this.running;
+    }
+
+    public void stop() {
+        this.running = false;
+    }
+
+    protected void iterate() {
+
+        System.out.println("Comenzando iteracion " + getCiclo() + ":");
+
+
+        for (Titulo titulo : this.getMercado().getTitulos().values()) {
+
+            titulo.notificarComienzoCiclo();
+        }
+
+        for (AgenteDeBolsa agente : agentes) {
+            agente.notificarIteracion(mercado);
+        }
+
+        for (Titulo titulo : this.getMercado().getTitulos().values()) {
+
+            titulo.notificarFinCiclo();
+        }
+
+        System.out.println("Finalizando iteracion.\n");
+
+    }
+
+    public abstract void mainLoop();
 
 }

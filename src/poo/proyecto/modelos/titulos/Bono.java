@@ -1,5 +1,7 @@
-package poo.proyecto.modelos;
+package poo.proyecto.modelos.titulos;
 
+
+import poo.proyecto.modelos.Titulo;
 
 import java.util.Date;
 

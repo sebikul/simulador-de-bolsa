@@ -6,53 +6,52 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Mercado {
+public abstract class Mercado {
 
-	private final HashMap<String, Titulo> titulos;
+    private final HashMap<String, Titulo> titulos;
 
-	public Mercado() {
-		titulos = new HashMap<String, Titulo>();
+    public Mercado() {
+        titulos = new HashMap<String, Titulo>();
 
-	}
+    }
 
-	@Override
-	public String toString() {
-		return titulos.toString();
-	}
+    public abstract void Initialize();
 
-	public final Map<String, Titulo> getTitulos() {
-		return Collections.unmodifiableMap(titulos);
-	}
+    @Override
+    public String toString() {
+        return titulos.toString();
+    }
 
-	public final boolean exists(String simbolo) {
-		return titulos.containsKey(simbolo);
-	}
+    public final Map<String, Titulo> getTitulos() {
+        return Collections.unmodifiableMap(titulos);
+    }
 
-	public final Titulo getFromSimbolo(String simbolo)
-			throws TituloNoExisteException {
-		if (!titulos.containsKey(simbolo)) {
-			throw new TituloNoExisteException(simbolo);
-		}
 
-		return titulos.get(simbolo);
-	}
+    public final Titulo getFromSimbolo(String simbolo)
+            throws TituloNoExisteException {
+        if (!titulos.containsKey(simbolo)) {
+            throw new TituloNoExisteException(simbolo);
+        }
 
-	public final void addTitulo(Titulo t) {
-		titulos.put(t.getSimbolo(), t);
+        return titulos.get(simbolo);
+    }
 
-	}
+    public final void addTitulo(Titulo t) {
+        titulos.put(t.getSimbolo(), t);
 
-	public void notificarCompra(Titulo titulo) {
-		
-		titulo.notificarCompra();
+    }
 
-	}
+    public final void notificarCompra(Titulo titulo) {
 
-	public void notificarVenta(Titulo titulo) {
+        titulo.notificarCompra();
 
-		titulo.notificarVenta();
+    }
 
-		
-	}
+    public final void notificarVenta(Titulo titulo) {
+
+        titulo.notificarVenta();
+
+
+    }
 
 }

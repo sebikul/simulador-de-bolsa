@@ -1,62 +1,94 @@
 package poo.proyecto.modelos;
 
+import poo.proyecto.simulador.Simulador;
+
 import java.util.Random;
 
 public abstract class Titulo {
 
-	private final String simbolo;
-	private final double valorInicial;
-	private double valor;
+    static private final double PRICE_NORMALIZER = 100;
 
-	public Titulo(String simbolo, double valorInicial) {
-		this.simbolo = simbolo;
-		this.valor = this.valorInicial = valorInicial;
-	}
+    private final String simbolo;
+    private final double valorInicial;
+    private double valor;
+    private HistoricData historico;
+    private Random rdm;
 
-	public final double getValor() {
-		return valor;
-	}
+    public Titulo(String simbolo, double valorInicial, int histSize) {
+        this.simbolo = simbolo;
+        this.valor = this.valorInicial = valorInicial;
 
-	public final void setValor(double valor) {
-		this.valor = valor;
-	}
+        historico = new HistoricData();
+    }
+    public Titulo(String simbolo, double valorInicial) {
+        this(simbolo, valorInicial, Simulador.DEFAULT_SIM_CYCLES);
+    }
 
-	public String getSimbolo() {
-		return simbolo;
-	}
+    public final double getValorInicial() {
+        return valorInicial;
+    }
 
-	@Override
-	public String toString() {
-		return this.simbolo + " (" + this.valor + ")";
-	}
+    public final HistoricData getHistorico() {
+        return historico;
+    }
 
-	public String printDebugInfo() {
-		return "$" + valorInicial + " --> $" + valor;
-	}
+    public final double getValor() {
+        return valor;
+    }
 
-	public abstract String getName();
+    public final void setValor(double valor) {
+        this.valor = valor;
+    }
 
-	public void notificarCompra() {
+    public final String getSimbolo() {
+        return simbolo;
+    }
 
-		Random rdm = new Random();
+    @Override
+    public String toString() {
+        return this.simbolo + " (" + this.valor + ")";
+    }
 
-		Double diff = valor * rdm.nextDouble() / 9E6;
+    public String printDebugInfo() {
+        return "$" + valorInicial + " --> $" + valor;
+    }
 
-		System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-				+ (valor + diff));
+    public abstract String getName();
 
-		valor = valor + diff;
-	}
+    public final void notificarCompra() {
 
-	public void notificarVenta() {
+        Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
 
-		Random rdm = new Random();
+        System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+                + (valor + diff));
 
-		Double diff = valor * rdm.nextDouble() / 10E6;
+        valor = valor + diff;
+    }
 
-		System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-				+ (valor - diff));
+    public final void notificarVenta() {
 
-		valor = valor - diff;
-	}
+
+        Double diff = valor * rdm.nextGaussian() /Titulo.PRICE_NORMALIZER;
+
+        System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+                + (valor - diff));
+
+        valor = valor - diff;
+    }
+
+    public final void notificarComienzoCiclo() {
+
+        rdm = new Random();
+
+        historico.notificarComienzoCiclo();
+
+    }
+
+    public final void notificarFinCiclo() {
+
+        historico.notificarFinCiclo(valor);
+
+        rdm = null;
+
+    }
 }
