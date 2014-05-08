@@ -59,8 +59,8 @@ public abstract class Titulo {
 
         Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
 
-        System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-                + (valor + diff));
+       // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+       //         + (valor + diff));
 
         valor = valor + diff;
     }
@@ -70,8 +70,8 @@ public abstract class Titulo {
 
         Double diff = valor * rdm.nextGaussian() /Titulo.PRICE_NORMALIZER;
 
-        System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-                + (valor - diff));
+       // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+        //        + (valor - diff));
 
         valor = valor - diff;
     }
