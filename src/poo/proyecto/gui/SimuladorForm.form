@@ -112,7 +112,10 @@
                     <preferred-size width="800" height="800"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <dividerSize value="100"/>
+                  <resizeWeight value="0.5"/>
+                </properties>
                 <border type="none"/>
                 <children>
                   <component id="7569d" class="javax.swing.JList" binding="listTitulos">

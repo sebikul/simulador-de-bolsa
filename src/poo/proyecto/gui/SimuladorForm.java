@@ -75,6 +75,7 @@ public class SimuladorForm {
             }
         });
 
+
     }
 
     public static void main(String[] args) {
@@ -83,6 +84,8 @@ public class SimuladorForm {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        frame.setTitle("Simulador");
+
     }
 
     private void cargarSimulador() {
@@ -107,8 +110,13 @@ public class SimuladorForm {
 
     private void pedirDatos() {
         ParametrosForm dialog = new ParametrosForm();
+        dialog.setTitle("Ingrese los parametros de la simulacion.");
         dialog.pack();
         dialog.setVisible(true);
+
+        if (dialog.getAgentes() == 0 || dialog.getInversores() == 0) {
+            return;
+        }
 
         simulador.generarAgentes(dialog.getAgentes());
         try {
@@ -140,9 +148,17 @@ public class SimuladorForm {
 
     private void titulosSelectionChanged() {
 
+        for (GraficadorDeTitulo graficador : graficadores.values()) {
+            graficador.setInactive();
+        }
+
+
         Titulo titulo = (Titulo) listTitulos.getSelectedValue();
 
-        splitPanelTitulos.setRightComponent(graficadores.get(titulo).getChartPanel());
+        GraficadorDeTitulo graficador = graficadores.get(titulo);
+
+        splitPanelTitulos.setRightComponent(graficador.getChartPanel());
+        graficador.setActive();
 
     }
 
@@ -179,7 +195,9 @@ public class SimuladorForm {
 
         if (!simulador.isReady()) {
             pedirDatos();
-            return;
+            if (!simulador.isReady()) {
+                return;
+            }
         }
 
         if (!simulador.hasStarted()) {
@@ -238,12 +256,24 @@ public class SimuladorForm {
         private final Titulo titulo;
         private final XYSeriesCollection dataset = new XYSeriesCollection();
         private ChartPanel chartPanel;
+        private boolean isActive = false;
 
         public GraficadorDeTitulo(Titulo titulo) {
             this.titulo = titulo;
             dataset.addSeries(series1);
         }
 
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void setActive() {
+            this.isActive = true;
+        }
+
+        public void setInactive() {
+            this.isActive = false;
+        }
 
         public void run() {
             final JFreeChart chart = createChart(dataset, titulo);
@@ -251,13 +281,12 @@ public class SimuladorForm {
             chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
 
             while (true) {
-                if (!simulador.isRunning()) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+
             }
 
         }
@@ -270,7 +299,11 @@ public class SimuladorForm {
         public void addToSeries(int ciclo, double value) {
 
             series1.add(ciclo, value);
-            chartPanel.repaint();
+
+            if (isActive) {
+                chartPanel.repaint();
+            }
+
         }
 
         private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {

@@ -6,4 +6,8 @@ public interface SimuladorHook {
 
     public void postIteracion();
 
+    //public void simulacionDetenida();
+
+    //public void simulacionArrancada();
+
 }

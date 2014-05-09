@@ -4,6 +4,7 @@ import poo.proyecto.exceptions.NoHayElementosException;
 import poo.proyecto.modelos.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -136,14 +137,17 @@ public abstract class Simulador extends Thread {
 
     private final void mainLoop() {
 
+        Collection<Titulo> titulos = this.getMercado().getTitulos().values();
+
         while (true) {
 
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if (!running) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 continue;
             }
 
@@ -151,7 +155,7 @@ public abstract class Simulador extends Thread {
                 hooks.preIteracion();
             }
 
-            for (Titulo titulo : this.getMercado().getTitulos().values()) {
+            for (Titulo titulo : titulos) {
 
                 titulo.notificarComienzoCiclo();
             }
@@ -160,7 +164,7 @@ public abstract class Simulador extends Thread {
                 agente.notificarIteracion(mercado);
             }
 
-            for (Titulo titulo : this.getMercado().getTitulos().values()) {
+            for (Titulo titulo : titulos) {
 
                 titulo.notificarFinCiclo();
             }
@@ -169,12 +173,6 @@ public abstract class Simulador extends Thread {
                 hooks.postIteracion();
             }
 
-
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
             ciclo++;
         }

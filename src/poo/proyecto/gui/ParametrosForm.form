@@ -71,7 +71,9 @@
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <text value="5"/>
+            </properties>
           </component>
           <component id="2aa86" class="javax.swing.JTextField" binding="textInversores">
             <constraints>
@@ -79,7 +81,9 @@
                 <preferred-size width="150" height="-1"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <text value="50"/>
+            </properties>
           </component>
         </children>
       </grid>
