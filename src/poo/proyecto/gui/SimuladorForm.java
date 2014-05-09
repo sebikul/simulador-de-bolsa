@@ -1,22 +1,29 @@
 package poo.proyecto.gui;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import poo.proyecto.helpers.GraficarTitulo;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.AgenteDeBolsa;
 import poo.proyecto.modelos.Inversor;
 import poo.proyecto.modelos.Titulo;
 import poo.proyecto.simulador.GuiSimulador;
+import poo.proyecto.simulador.SimuladorHook;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 
 
 public class SimuladorForm {
@@ -36,10 +43,10 @@ public class SimuladorForm {
     private DefaultListModel modelInversores = new DefaultListModel();
     private CycleThread cycleThread = new CycleThread();
 
-    private GraficarTitulo graficadorActual;
+
+    private HashMap<Titulo, GraficadorDeTitulo> graficadores = new HashMap<Titulo, GraficadorDeTitulo>();
 
     public SimuladorForm() {
-
 
         cargarSimulador();
 
@@ -80,8 +87,25 @@ public class SimuladorForm {
 
     private void cargarSimulador() {
 
-        simulador = new GuiSimulador();
+        simulador = new GuiSimulador(new SimuladorHook() {
 
+            @Override
+            public void preIteracion() {
+                preIteracionNotification();
+            }
+
+            @Override
+            public void postIteracion() {
+                postIteracionNotification();
+            }
+        });
+
+        pedirDatos();
+
+
+    }
+
+    private void pedirDatos() {
         ParametrosForm dialog = new ParametrosForm();
         dialog.pack();
         dialog.setVisible(true);
@@ -96,6 +120,10 @@ public class SimuladorForm {
 
         for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
             modelTitulos.addElement(titulo);
+
+            GraficadorDeTitulo tmp = new GraficadorDeTitulo(titulo);
+            tmp.start();
+            graficadores.put(titulo, tmp);
         }
 
         for (AgenteDeBolsa agente : simulador.getAgentes()) {
@@ -110,23 +138,30 @@ public class SimuladorForm {
         listInversores.setModel(modelInversores);
     }
 
-    public void titulosSelectionChanged() {
+    private void titulosSelectionChanged() {
 
-        graficadorActual = new GraficarTitulo((Titulo) listTitulos.getSelectedValue());
+        Titulo titulo = (Titulo) listTitulos.getSelectedValue();
 
-        graficadorActual.start();
-
-        try {
-            graficadorActual.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        splitPanelTitulos.setRightComponent(graficadorActual.getChartPanel());
+        splitPanelTitulos.setRightComponent(graficadores.get(titulo).getChartPanel());
 
     }
 
-    public void inversoresSelectionChanged() {
+    private void inversoresSelectionChanged() {
+
+    }
+
+    private void preIteracionNotification() {
+
+
+    }
+
+    private void postIteracionNotification() {
+
+        for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
+
+            graficadores.get(titulo).addToSeries((int) simulador.getCiclo(), titulo.getValor());
+        }
+
 
     }
 
@@ -141,6 +176,11 @@ public class SimuladorForm {
     }
 
     public void iniciarButtonClicked() {
+
+        if (!simulador.isReady()) {
+            pedirDatos();
+            return;
+        }
 
         if (!simulador.hasStarted()) {
             simulador.start();
@@ -165,38 +205,17 @@ public class SimuladorForm {
         @Override
         public void run() {
 
-            int lastCycle = 0;
 
             while (true) {
                 if (running) {
                     labelCiclo.setText("" + simulador.getCiclo());
                     labelEstado.setText("Ejecutando...");
 
-                    Titulo titulo = (Titulo) listTitulos.getSelectedValue();
-
-                    if (titulo != null && graficadorActual != null) {
-
-                        System.out.println("Ciclo: " + lastCycle + "-->" + simulador.getCiclo());
-                        Collection<Double> paraAgregar = titulo.getHistorico().getFromCycle(lastCycle);
-
-                        XYSeries series = (XYSeries) graficadorActual.getDataset().getSeries();
-
-                        int i = (int) series.getMaxX();
-
-                        for (double val : paraAgregar) {
-                            series.add(i++, val);
-                        }
-
-                    }
-
-
-
                 } else {
                     labelEstado.setText("Detenido.");
                 }
 
                 listTitulos.repaint();
-                lastCycle = (int) simulador.getCiclo();
 
                 try {
                     Thread.sleep(500);
@@ -210,6 +229,76 @@ public class SimuladorForm {
         public void setRunning(boolean v) {
             running = v;
         }
+    }
+
+
+    class GraficadorDeTitulo extends Thread {
+
+        final XYSeries series1 = new XYSeries("Precio");
+        private final Titulo titulo;
+        private final XYSeriesCollection dataset = new XYSeriesCollection();
+        private ChartPanel chartPanel;
+
+        public GraficadorDeTitulo(Titulo titulo) {
+            this.titulo = titulo;
+            dataset.addSeries(series1);
+        }
+
+
+        public void run() {
+            final JFreeChart chart = createChart(dataset, titulo);
+            chartPanel = new ChartPanel(chart);
+            chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+
+            while (true) {
+                if (!simulador.isRunning()) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        }
+
+        public ChartPanel getChartPanel() {
+            return chartPanel;
+        }
+
+
+        public void addToSeries(int ciclo, double value) {
+
+            series1.add(ciclo, value);
+            chartPanel.repaint();
+        }
+
+        private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {
+
+            final JFreeChart chart = ChartFactory.createXYLineChart(
+                    "Grafico de precios: " + titulo.getSimbolo(), "Iteracion", "Valor",
+                    dataset, PlotOrientation.VERTICAL, true, true, false);
+
+            chart.setBackgroundPaint(Color.white);
+
+            final XYPlot plot = chart.getXYPlot();
+            plot.setBackgroundPaint(Color.lightGray);
+
+            plot.setDomainGridlinePaint(Color.white);
+            plot.setRangeGridlinePaint(Color.white);
+
+            final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+            renderer.setSeriesLinesVisible(0, true);
+            renderer.setSeriesShapesVisible(0, false);
+            plot.setRenderer(renderer);
+
+            final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            return chart;
+
+        }
+
     }
 
 }

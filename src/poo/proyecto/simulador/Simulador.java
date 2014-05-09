@@ -11,6 +11,7 @@ public abstract class Simulador extends Thread {
 
     static public final int DEFAULT_SIM_CYCLES = 365;
     protected final ArrayList<AgenteDeBolsa> agentes = new ArrayList<AgenteDeBolsa>();
+    private final SimuladorHook hooks;
     protected boolean running = false;
     private boolean hasStarted = false;
     private Mercado mercado;
@@ -18,6 +19,15 @@ public abstract class Simulador extends Thread {
     private boolean generoAgentes = false;
     private boolean generoInversores = false;
     private boolean mercadoSeteado = false;
+
+    public Simulador() {
+
+        this.hooks = null;
+    }
+
+    public Simulador(SimuladorHook hook) {
+        this.hooks = hook;
+    }
 
     public boolean hasStarted() {
         return hasStarted;
@@ -95,6 +105,10 @@ public abstract class Simulador extends Thread {
         mainLoop();
     }
 
+    public boolean isReady() {
+        return (generoAgentes && generoInversores && mercadoSeteado);
+    }
+
     public final boolean isRunning() {
         return this.running;
     }
@@ -133,6 +147,10 @@ public abstract class Simulador extends Thread {
                 continue;
             }
 
+            if (hooks != null) {
+                hooks.preIteracion();
+            }
+
             for (Titulo titulo : this.getMercado().getTitulos().values()) {
 
                 titulo.notificarComienzoCiclo();
@@ -145,6 +163,17 @@ public abstract class Simulador extends Thread {
             for (Titulo titulo : this.getMercado().getTitulos().values()) {
 
                 titulo.notificarFinCiclo();
+            }
+
+            if (hooks != null) {
+                hooks.postIteracion();
+            }
+
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             ciclo++;
