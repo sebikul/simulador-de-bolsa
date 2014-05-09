@@ -20,6 +20,7 @@ public abstract class Titulo {
 
         historico = new HistoricData();
     }
+
     public Titulo(String simbolo, double valorInicial) {
         this(simbolo, valorInicial, Simulador.DEFAULT_SIM_CYCLES);
     }
@@ -59,8 +60,8 @@ public abstract class Titulo {
 
         Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
 
-       // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-       //         + (valor + diff));
+        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+        //         + (valor + diff));
 
         valor = valor + diff;
     }
@@ -68,9 +69,9 @@ public abstract class Titulo {
     public final void notificarVenta() {
 
 
-        Double diff = valor * rdm.nextGaussian() /Titulo.PRICE_NORMALIZER;
+        Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
 
-       // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
         //        + (valor - diff));
 
         valor = valor - diff;
@@ -86,7 +87,10 @@ public abstract class Titulo {
 
     public final void notificarFinCiclo() {
 
-        historico.notificarFinCiclo(valor);
+        synchronized (historico) {
+            historico.notificarFinCiclo(valor);
+        }
+
 
         rdm = null;
 

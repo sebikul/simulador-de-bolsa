@@ -1,5 +1,6 @@
 package poo.proyecto.gui;
 
+import poo.proyecto.helpers.GraficarTitulo;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.AgenteDeBolsa;
 import poo.proyecto.modelos.Inversor;
@@ -14,49 +15,26 @@ import java.awt.event.ActionListener;
 
 
 public class SimuladorForm {
-    GuiSimulador simulador = new GuiSimulador();
+    GuiSimulador simulador;
     private JTabbedPane tabbedPane1;
     private JPanel panel1;
-    private JPanel Titulos;
-    private JPanel Inversores;
+    private JPanel panelTitulos;
+    private JPanel panelInversores;
     private JList listTitulos;
     private JList listInversores;
     private JLabel labelEstado;
     private JButton detenerButton;
     private JButton iniciarBoton;
     private JLabel labelCiclo;
+    private JSplitPane splitPanelTitulos;
     private DefaultListModel modelTitulos = new DefaultListModel();
     private DefaultListModel modelInversores = new DefaultListModel();
     private CycleThread cycleThread = new CycleThread();
 
     public SimuladorForm() {
 
-        ParametrosForm dialog = new ParametrosForm();
-        dialog.pack();
-        dialog.setVisible(true);
 
-        simulador.generarAgentes(dialog.getAgentes());
-        try {
-            simulador.generarInversores(dialog.getInversores());
-            simulador.setMercado(new Merval());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
-            modelTitulos.addElement(titulo);
-        }
-
-        for (AgenteDeBolsa agente : simulador.getAgentes()) {
-
-            for (Inversor inversor : agente.getClientes().keySet()) {
-                modelInversores.addElement(inversor);
-            }
-
-        }
-
-        listTitulos.setModel(modelTitulos);
-        listInversores.setModel(modelInversores);
+        cargarSimulador();
 
         listTitulos.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -93,7 +71,41 @@ public class SimuladorForm {
         frame.setVisible(true);
     }
 
+    private void cargarSimulador() {
+
+        simulador = new GuiSimulador();
+
+        ParametrosForm dialog = new ParametrosForm();
+        dialog.pack();
+        dialog.setVisible(true);
+
+        simulador.generarAgentes(dialog.getAgentes());
+        try {
+            simulador.generarInversores(dialog.getInversores());
+            simulador.setMercado(new Merval());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
+            modelTitulos.addElement(titulo);
+        }
+
+        for (AgenteDeBolsa agente : simulador.getAgentes()) {
+
+            for (Inversor inversor : agente.getClientes().keySet()) {
+                modelInversores.addElement(inversor);
+            }
+
+        }
+
+        listTitulos.setModel(modelTitulos);
+        listInversores.setModel(modelInversores);
+    }
+
     public void titulosSelectionChanged() {
+
+        splitPanelTitulos.setRightComponent(GraficarTitulo.graficar((Titulo) listTitulos.getSelectedValue()));
 
     }
 

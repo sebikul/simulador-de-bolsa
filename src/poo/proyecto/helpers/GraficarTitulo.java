@@ -16,27 +16,29 @@ import poo.proyecto.modelos.Titulo;
 
 import java.awt.*;
 
-public class GraficarTitulo extends ApplicationFrame {
+public class GraficarTitulo {
+
+    private ChartPanel chartPanel;
 
     public GraficarTitulo(final Titulo titulo) {
 
-        super(titulo.getSimbolo());
-
         final XYDataset dataset = createDataset(titulo);
         final JFreeChart chart = createChart(dataset, titulo);
-        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(chartPanel);
 
     }
 
-    public static void graficar(final Titulo titulo) {
+    public static ChartPanel graficar(final Titulo titulo) {
 
         final GraficarTitulo demo = new GraficarTitulo(titulo);
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
 
+        return demo.getChartPanel();
+
+    }
+
+    public ChartPanel getChartPanel() {
+        return chartPanel;
     }
 
     private XYDataset createDataset(Titulo titulo) {
@@ -45,9 +47,12 @@ public class GraficarTitulo extends ApplicationFrame {
 
         int i = 0;
 
-        for (double p : titulo.getHistorico().get()) {
-            series1.add(i++, p);
+        synchronized (titulo.getHistorico()) {
+            for (double p : titulo.getHistorico().get()) {
+                series1.add(i++, p);
+            }
         }
+
 
         final XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(series1);
