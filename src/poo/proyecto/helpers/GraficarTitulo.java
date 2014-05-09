@@ -15,25 +15,28 @@ import org.jfree.ui.RefineryUtilities;
 import poo.proyecto.modelos.Titulo;
 
 import java.awt.*;
+import java.util.Collection;
 
-public class GraficarTitulo {
+public class GraficarTitulo extends Thread {
 
+    private final Titulo titulo;
+    private final XYSeriesCollection dataset = new XYSeriesCollection();
     private ChartPanel chartPanel;
 
     public GraficarTitulo(final Titulo titulo) {
-
-        final XYDataset dataset = createDataset(titulo);
-        final JFreeChart chart = createChart(dataset, titulo);
-        chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        this.titulo = titulo;
+        createDataset(titulo);
 
     }
 
-    public static ChartPanel graficar(final Titulo titulo) {
+    public XYSeriesCollection getDataset() {
+        return dataset;
+    }
 
-        final GraficarTitulo demo = new GraficarTitulo(titulo);
-
-        return demo.getChartPanel();
+    public void run() {
+        final JFreeChart chart = createChart(dataset, titulo);
+        chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
 
     }
 
@@ -53,12 +56,15 @@ public class GraficarTitulo {
             }
         }
 
-
-        final XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(series1);
 
         return dataset;
 
+    }
+
+    public void addToSeries(Collection<Double> col) {
+
+        dataset.getSeries().addAll(col);
     }
 
     private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {

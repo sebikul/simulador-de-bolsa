@@ -1,5 +1,8 @@
 package poo.proyecto.gui;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import poo.proyecto.helpers.GraficarTitulo;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.AgenteDeBolsa;
@@ -12,6 +15,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
+import java.util.List;
 
 
 public class SimuladorForm {
@@ -30,6 +35,8 @@ public class SimuladorForm {
     private DefaultListModel modelTitulos = new DefaultListModel();
     private DefaultListModel modelInversores = new DefaultListModel();
     private CycleThread cycleThread = new CycleThread();
+
+    private GraficarTitulo graficadorActual;
 
     public SimuladorForm() {
 
@@ -105,7 +112,17 @@ public class SimuladorForm {
 
     public void titulosSelectionChanged() {
 
-        splitPanelTitulos.setRightComponent(GraficarTitulo.graficar((Titulo) listTitulos.getSelectedValue()));
+        graficadorActual = new GraficarTitulo((Titulo) listTitulos.getSelectedValue());
+
+        graficadorActual.start();
+
+        try {
+            graficadorActual.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        splitPanelTitulos.setRightComponent(graficadorActual.getChartPanel());
 
     }
 
@@ -148,17 +165,38 @@ public class SimuladorForm {
         @Override
         public void run() {
 
+            int lastCycle = 0;
 
             while (true) {
                 if (running) {
                     labelCiclo.setText("" + simulador.getCiclo());
                     labelEstado.setText("Ejecutando...");
 
+                    Titulo titulo = (Titulo) listTitulos.getSelectedValue();
+
+                    if (titulo != null && graficadorActual != null) {
+
+                        System.out.println("Ciclo: " + lastCycle + "-->" + simulador.getCiclo());
+                        Collection<Double> paraAgregar = titulo.getHistorico().getFromCycle(lastCycle);
+
+                        XYSeries series = (XYSeries) graficadorActual.getDataset().getSeries();
+
+                        int i = (int) series.getMaxX();
+
+                        for (double val : paraAgregar) {
+                            series.add(i++, val);
+                        }
+
+                    }
+
+
+
                 } else {
                     labelEstado.setText("Detenido.");
                 }
 
                 listTitulos.repaint();
+                lastCycle = (int) simulador.getCiclo();
 
                 try {
                     Thread.sleep(500);

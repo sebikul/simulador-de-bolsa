@@ -1,6 +1,7 @@
 package poo.proyecto.modelos;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +40,10 @@ public class HistoricData implements Cloneable {
 
     public List<Double> get() {
         return Collections.unmodifiableList(historico);
+    }
+
+    public Collection<Double> getFromCycle(int c) {
+        return Collections.unmodifiableList(historico.subList(c, historico.size()));
     }
 
 }
