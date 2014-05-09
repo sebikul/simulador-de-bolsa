@@ -1,11 +1,6 @@
 package poo.proyecto;
 
 
-import poo.proyecto.helpers.GraficarTitulo;
-import poo.proyecto.mercados.Merval;
-import poo.proyecto.modelos.Titulo;
-import poo.proyecto.simulador.CmdSimulador;
-
 public class Principal {
 
     public static void main(String[] args) {
