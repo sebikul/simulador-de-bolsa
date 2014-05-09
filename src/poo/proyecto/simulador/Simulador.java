@@ -1,123 +1,155 @@
 package poo.proyecto.simulador;
 
+import poo.proyecto.exceptions.NoHayElementosException;
+import poo.proyecto.modelos.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import poo.proyecto.exceptions.NoHayElementosException;
-import poo.proyecto.modelos.AgenteDeBolsa;
-import poo.proyecto.modelos.Inversor;
-import poo.proyecto.modelos.Mercado;
-import poo.proyecto.modelos.ResultadosSimulacion;
-import poo.proyecto.modelos.Titulo;
+public abstract class Simulador extends Thread {
 
-public abstract class Simulador {
+    static public final int DEFAULT_SIM_CYCLES = 365;
+    protected final ArrayList<AgenteDeBolsa> agentes = new ArrayList<AgenteDeBolsa>();
+    protected boolean running = false;
+    private boolean hasStarted = false;
+    private Mercado mercado;
+    private long ciclo = 0;
+    private boolean generoAgentes = false;
+    private boolean generoInversores = false;
+    private boolean mercadoSeteado = false;
 
-	static public final int DEFAULT_SIM_CYCLES = 365;
-	protected final ArrayList<AgenteDeBolsa> agentes = new ArrayList<AgenteDeBolsa>();
-	protected boolean running = false;
-	private Mercado mercado;
-	private long ciclo = 0;
+    public boolean hasStarted() {
+        return hasStarted;
+    }
 
-	public long getCiclo() {
-		return ciclo;
-	}
+    public final long getCiclo() {
+        return ciclo;
+    }
 
-	public List<AgenteDeBolsa> getAgentes() {
-		return Collections.unmodifiableList(agentes);
-	}
+    public final List<AgenteDeBolsa> getAgentes() {
+        return Collections.unmodifiableList(agentes);
+    }
 
-	public Mercado getMercado() {
-		return mercado;
-	}
+    public final Mercado getMercado() {
+        return mercado;
+    }
 
-	public void setMercado(Mercado mercado) throws Exception {
-		if (mercado == null)
-			throw new Exception();
+    public final void setMercado(Mercado mercado) throws Exception {
+        if (mercado == null || this.mercado != null)
+            throw new Exception();
 
-		this.mercado = mercado;
-	}
+        this.mercado = mercado;
+        this.mercado.cargar();
+        mercadoSeteado = true;
+    }
 
-	public abstract void start();
+    public final void generarAgentes(int cantidad) {
 
-	public void generarAgentes(int cantidad) {
+        for (int i = 0; i < cantidad; i++) {
+            agentes.add(new AgenteDeBolsa("Agente " + (i + 1)));
+        }
 
-		for (int i = 0; i < cantidad; i++) {
-			agentes.add(new AgenteDeBolsa("Agente " + (i + 1)));
-		}
+        generoAgentes = true;
+    }
 
-	}
+    public final void generarInversores(int cantidad) throws Exception {
 
-	public void generarInversores(int cantidad) {
+        if (!generoAgentes) {
+            throw new Exception("No se generaron agentes de bolsa");
+        }
 
-		Decididor<AgenteDeBolsa> decididorDeAgentes = new Decididor<AgenteDeBolsa>();
+        Decididor<AgenteDeBolsa> decididorDeAgentes = new Decididor<AgenteDeBolsa>();
 
-		for (AgenteDeBolsa agente : agentes) {
-			decididorDeAgentes.addDecision(new Decision<AgenteDeBolsa>(agente,
-					1));
-		}
+        for (AgenteDeBolsa agente : agentes) {
+            decididorDeAgentes.addDecision(new Decision<AgenteDeBolsa>(agente,
+                    1));
+        }
 
-		AgenteDeBolsa agente;
+        AgenteDeBolsa agente;
 
-		for (int i = 0; i < cantidad; i++) {
+        for (int i = 0; i < cantidad; i++) {
 
-			try {
-				agente = decididorDeAgentes.getDecision().getObject();
-			} catch (NoHayElementosException e) {
-				e.printStackTrace();
-				break;
-			}
+            try {
+                agente = decididorDeAgentes.getDecision().getObject();
+            } catch (NoHayElementosException e) {
+                e.printStackTrace();
+                break;
+            }
 
-			agente.agregarInversor(new Inversor("Inversor " + (i + 1), 1000,
-					agente));
-		}
+            agente.agregarInversor(new Inversor("Inversor " + (i + 1), 1000,
+                    agente));
+        }
 
-	}
+        generoInversores = true;
+    }
 
-	public void run() {
-		this.running = true;
-	}
+    public final void run() throws IllegalStateException {
 
-	public boolean getStatus() {
-		return this.running;
-	}
+        if (!generoAgentes || !generoInversores || !mercadoSeteado) {
+            throw new IllegalStateException();
+        }
 
-	public void stop() {
-		this.running = false;
-	}
+        running = true;
+        hasStarted = true;
+        mainLoop();
+    }
 
-	protected void iterate() {
+    public final boolean isRunning() {
+        return this.running;
+    }
 
-		//System.out.println("Comenzando iteracion " + getCiclo() + ":");
+    public final void detenerSimulador() {
+        this.running = false;
+    }
 
-		for (Titulo titulo : this.getMercado().getTitulos().values()) {
+    public final void resumirSimulador() {
+        this.running = true;
+    }
 
-			titulo.notificarComienzoCiclo();
-		}
 
-		for (AgenteDeBolsa agente : agentes) {
-			agente.notificarIteracion(mercado);
-		}
+    public final ResultadosSimulacion resultados() throws Exception {
 
-		for (Titulo titulo : this.getMercado().getTitulos().values()) {
+        if (running) {
+            throw new Exception("La simulacion debe estar detenida");
+        }
+        ResultadosSimulacion resultados = new ResultadosSimulacion();
+        resultados.setTitulos(mercado.getTitulos().values());
+        resultados.setInversores(agentes);
 
-			titulo.notificarFinCiclo();
-		}
+        return resultados;
+    }
 
-		ciclo++;
+    private final void mainLoop() {
 
-		//System.out.println("Finalizando iteracion.\n");
+        while (true) {
 
-	}
+            if (!running) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                continue;
+            }
 
-	public ResultadosSimulacion resultados() {
-		ResultadosSimulacion resultados = new ResultadosSimulacion();
-		resultados.setTitulos(mercado.getTitulos().values());
-		resultados.setInversores(agentes);
+            for (Titulo titulo : this.getMercado().getTitulos().values()) {
 
-		return resultados;
-	}
+                titulo.notificarComienzoCiclo();
+            }
 
-	public abstract void mainLoop();
+            for (AgenteDeBolsa agente : agentes) {
+                agente.notificarIteracion(mercado);
+            }
+
+            for (Titulo titulo : this.getMercado().getTitulos().values()) {
+
+                titulo.notificarFinCiclo();
+            }
+
+            ciclo++;
+        }
+
+    }
 
 }

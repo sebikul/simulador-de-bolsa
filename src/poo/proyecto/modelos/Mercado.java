@@ -15,7 +15,7 @@ public abstract class Mercado {
 
     }
 
-    public abstract void Initialize();
+    public abstract void cargar();
 
     @Override
     public String toString() {

@@ -1,11 +1,11 @@
 package poo.proyecto.mercados;
 
-import poo.proyecto.modelos.titulos.Accion;
 import poo.proyecto.modelos.Mercado;
+import poo.proyecto.modelos.titulos.Accion;
 
 public final class Merval extends Mercado {
     @Override
-    public void Initialize() {
+    public void cargar() {
 
         addTitulo(new Accion("YPFD", 40));
         addTitulo(new Accion("GGAL", 100));

@@ -1,7 +1,5 @@
 package poo.proyecto.helpers;
 
-import java.awt.Color;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -14,74 +12,74 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
-
 import poo.proyecto.modelos.Titulo;
 
-@SuppressWarnings("serial")
+import java.awt.*;
+
 public class GraficarTitulo extends ApplicationFrame {
 
-	public GraficarTitulo(final Titulo titulo) {
+    public GraficarTitulo(final Titulo titulo) {
 
-		super(titulo.getSimbolo());
+        super(titulo.getSimbolo());
 
-		final XYDataset dataset = createDataset(titulo);
-		final JFreeChart chart = createChart(dataset, titulo);
-		final ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-		setContentPane(chartPanel);
+        final XYDataset dataset = createDataset(titulo);
+        final JFreeChart chart = createChart(dataset, titulo);
+        final ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
-	}
+    }
 
-	private XYDataset createDataset(Titulo titulo) {
+    public static void graficar(final Titulo titulo) {
 
-		final XYSeries series1 = new XYSeries("Precio");
+        final GraficarTitulo demo = new GraficarTitulo(titulo);
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
 
-		int i = 0;
+    }
 
-		for (double p : titulo.getHistorico().get()) {
-			series1.add(i++, p);
-		}
+    private XYDataset createDataset(Titulo titulo) {
 
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series1);
+        final XYSeries series1 = new XYSeries("Precio");
 
-		return dataset;
+        int i = 0;
 
-	}
+        for (double p : titulo.getHistorico().get()) {
+            series1.add(i++, p);
+        }
 
-	private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {
+        final XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series1);
 
-		final JFreeChart chart = ChartFactory.createXYLineChart(
-				"Grafico de precios: " + titulo.getSimbolo(), "Iteracion", "Valor",
-				dataset, PlotOrientation.VERTICAL, true, true, false);
+        return dataset;
 
-		chart.setBackgroundPaint(Color.white);
+    }
 
-		final XYPlot plot = chart.getXYPlot();
-		plot.setBackgroundPaint(Color.lightGray);
+    private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {
 
-		plot.setDomainGridlinePaint(Color.white);
-		plot.setRangeGridlinePaint(Color.white);
+        final JFreeChart chart = ChartFactory.createXYLineChart(
+                "Grafico de precios: " + titulo.getSimbolo(), "Iteracion", "Valor",
+                dataset, PlotOrientation.VERTICAL, true, true, false);
 
-		final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesLinesVisible(0, false);
-		renderer.setSeriesShapesVisible(1, false);
-		plot.setRenderer(renderer);
+        chart.setBackgroundPaint(Color.white);
 
-		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        final XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.lightGray);
 
-		return chart;
+        plot.setDomainGridlinePaint(Color.white);
+        plot.setRangeGridlinePaint(Color.white);
 
-	}
+        final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesLinesVisible(0, false);
+        renderer.setSeriesShapesVisible(1, false);
+        plot.setRenderer(renderer);
 
-	public static void graficar(final Titulo titulo) {
+        final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-		final GraficarTitulo demo = new GraficarTitulo(titulo);
-		demo.pack();
-		RefineryUtilities.centerFrameOnScreen(demo);
-		demo.setVisible(true);
+        return chart;
 
-	}
+    }
 
 }
