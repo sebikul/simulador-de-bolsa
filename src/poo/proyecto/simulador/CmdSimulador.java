@@ -4,43 +4,47 @@ import poo.proyecto.helpers.InputHelper;
 
 import java.io.Console;
 
+/**
+ * Implementacion de un simulador por consola.
+ */
 public final class CmdSimulador extends Simulador {
 
+    /**
+     * Almacena la consola con la cual se hara la interaccion con
+     * el usuario.
+     */
     private final Console c;
+
+    /**
+     * Instancia de InputHelper usada para leer datos desde la consola.
+     */
     private final InputHelper input;
 
+    /**
+     * Construye una instancia del simulador.
+     */
     public CmdSimulador() {
+        hooks = new SimuladorHook() {
+
+            @Override
+            public void prepararSimulacion() {
+                generarAgentes();
+                generarInversores();
+                pedirMaxCiclos();
+            }
+        };
         c = System.console();
         input = new InputHelper(c);
+
+        this.start();
     }
 
-    private char menu() {
-
-        c.flush();
-
-        c.printf("*******************************************\n");
-
-        c.printf("\n\nMenu principal:\n");
-
-        c.printf("a: Generar Agentes.\n");
-        c.printf("i: Generar inversores.\n");
-
-        c.printf("s: Iniciar el simulador.\n");
-        c.printf("q: Salir\n");
-
-        String io;
-
-        do {
-            io = c.readLine("Ingrese una opcion: ");
-        } while (io.length() == 0);
-
-        return io.toCharArray()[0];
-
-    }
-
+    /**
+     * Pide al usuario que ingrese la cantidad de agentes que desea crear.
+     */
     public void generarAgentes() {
 
-        int countAgentes = 0;
+        int countAgentes;
 
         do {
             countAgentes = input.getInt(
@@ -52,9 +56,29 @@ public final class CmdSimulador extends Simulador {
 
     }
 
+    /**
+     * Pide al usuario que ingrese la cantidad de ciclos a simular.
+     */
+    public void pedirMaxCiclos() {
+
+        int ciclos;
+
+        do {
+            ciclos = input.getInt(
+                    "Ingrese la cantidad de ciclos a simular.",
+                    "El numero debe ser un valor entero mayor que 0.");
+        } while (ciclos <= 0);
+
+        setMaxCiclos(ciclos);
+
+    }
+
+    /**
+     * Pide al usuario que ingrese la cantidad de inversores que desea crear.
+     */
     public void generarInversores() {
 
-        int countInversores = 0;
+        int countInversores;
 
         do {
             countInversores = input.getInt(

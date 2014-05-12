@@ -5,40 +5,40 @@ import java.util.Collection;
 
 public class ResultadosSimulacion {
 
-	private Collection<Titulo> titulos;
-	private ArrayList<Inversor> inversores = new ArrayList<Inversor>();
+    private Collection<Titulo> titulos = null;
+    private ArrayList<Inversor> inversores = new ArrayList<Inversor>();
 
-	public void setInversores(ArrayList<AgenteDeBolsa> agentes) {
-		for (AgenteDeBolsa agente : agentes) {
-			for (Inversor inversor : agente.getClientes().keySet()) {
-				inversores.add(inversor);
-			}
-		}
+    public void setInversores(ArrayList<AgenteDeBolsa> agentes) {
+        for (AgenteDeBolsa agente : agentes) {
+            for (Inversor inversor : agente.getClientes().keySet()) {
+                inversores.add(inversor);
+            }
+        }
 
-	}
+    }
 
-	@Override
-	public String toString() {
+    @Override
+    public String toString() {
 
-		String ret = "\nInversores:\n";
+        String ret = "\nInversores:\n";
 
-		for (Inversor inversor : inversores) {
-			ret += inversor.getNombre() + " [" + inversor.getCapitalInicial()
-					+ " --> " + inversor.getPatrimonio() + "]\n";
-		}
+        for (Inversor inversor : inversores) {
+            ret += inversor.getNombre() + " [" + inversor.getCapitalInicial()
+                    + " --> " + inversor.getPatrimonio() + "]\n";
+        }
 
-		ret += "\nTitulos:\n";
+        ret += "\nTitulos:\n";
 
-		for (Titulo titulo : titulos) {
-			ret += titulo.getSimbolo() + " [" + titulo.getValorInicial()
-					+ " --> " + titulo.getValor() + "]\n";
-		}
+        for (Titulo titulo : titulos) {
+            ret += titulo.getSimbolo() + " [" + titulo.getValorInicial()
+                    + " --> " + titulo.getValor() + "]\n";
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	public void setTitulos(Collection<Titulo> values) {
-		this.titulos = values;
+    public void setTitulos(Collection<Titulo> values) {
+        this.titulos = values;
 
-	}
+    }
 }
