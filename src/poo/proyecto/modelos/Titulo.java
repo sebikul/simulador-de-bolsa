@@ -129,7 +129,7 @@ public abstract class Titulo {
         // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
         //         + (valor + diff));
 
-        valor += diff;
+        valor += diff * cantidad;
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class Titulo {
         // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
         //        + (valor - diff));
 
-        valor -= diff;
+        valor -= diff * cantidad;
     }
 
     /**

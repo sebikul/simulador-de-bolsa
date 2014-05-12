@@ -12,12 +12,34 @@ import java.util.Map;
  */
 public class Inversor {
 
+    /**
+     * Almacena el nombre del inversor.
+     */
     private final String nombre;
 
+    /**
+     * Almacena un mapa entra un titulo que posee el inversor y la cantidad que posee.
+     */
     private final HashMap<Titulo, Integer> cartera = new HashMap<Titulo, Integer>();
+
+    /**
+     * Almacena el capital del inversor.
+     */
     private double capital;
+
+    /**
+     * Almacena el riesgo personal del inversor.
+     */
     private double riesgo = 0.5;
+
+    /**
+     * Almacena el agente de bolsa del inversor.
+     */
     private AgenteDeBolsa agente;
+
+    /**
+     * Almacena el capital inicial del inversor.
+     */
     private double capitalInicial;
 
     /**
@@ -196,11 +218,73 @@ public class Inversor {
     /**
      * Determina de forma aleatoria, basandose en el riesgo personal,
      * si el inversor desea invertir.
+     * TODO hacer indices
+     * TODO ver el indice y el valor historico
      *
      * @return True si el inversor desea realizar una compra/venta.
      */
-    public boolean deseaInvertir() {
+    private boolean deseaInvertir(Titulo titulo) {
         return (Math.random() < riesgo);
+    }
+
+    /**
+     * Decide entre los titulos disponibles en el mercado cuales desea comprar.
+     *
+     * @param mercado Mercado en el cual se esta operando.
+     * @return Mapa de titulos que se desean comprar con su cantidad.
+     */
+    public Map<Titulo, Integer> getOrdenesDeCompra(Mercado mercado) {
+
+        HashMap<Titulo, Integer> elecciones = new HashMap<Titulo, Integer>();
+
+
+        for (Titulo titulo : mercado.getTitulos().values()) {
+            if (deseaInvertir(titulo)) {
+
+                int cantidad = ((int) (capital / titulo.getValor() * riesgo)) + 1;
+
+                assert cantidad >= 1;
+
+                elecciones.put(titulo, cantidad);
+            }
+        }
+
+
+        return Collections.unmodifiableMap(elecciones);
+    }
+
+    /**
+     * Decide entre los titulos disponibles en su cartera cuales desea vender.
+     *
+     * @return Mapa de titulos que se desean vender con su cantidad.
+     */
+    public Map<Titulo, Integer> getOrdenesDeVenta() {
+
+        HashMap<Titulo, Integer> elecciones = new HashMap<Titulo, Integer>();
+
+
+        for (Map.Entry<Titulo, Integer> entrada : cartera.entrySet()) {
+
+            if (entrada.getValue() > 0 && deseaInvertir(entrada.getKey())) {
+
+                Titulo titulo = entrada.getKey();
+
+                int cantidad = ((int) (capital / titulo.getValor() * riesgo)) + 1;
+
+
+                int cuantoTengo = cartera.get(titulo);
+
+                if (cantidad > cuantoTengo) {
+                    cantidad = cuantoTengo;
+                }
+
+                assert cantidad >= 1;
+
+                elecciones.put(titulo, cantidad);
+            }
+        }
+
+        return Collections.unmodifiableMap(elecciones);
     }
 
     /**

@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 
 public class SimuladorForm {
-    GuiSimulador simulador;
+    private GuiSimulador simulador;
     private JTabbedPane tabbedPane1;
     private JPanel panel1;
     private JPanel panelTitulos;
@@ -117,9 +117,11 @@ public class SimuladorForm {
         dialog.pack();
         dialog.setVisible(true);
 
-        if (dialog.getAgentes() == 0 || dialog.getInversores() == 0) {
+        if (dialog.getAgentes() == 0 || dialog.getInversores() == 0 || dialog.getCiclos() == 0) {
             return;
         }
+
+        simulador.setMaxCiclos(dialog.getCiclos());
 
         simulador.generarAgentes(dialog.getAgentes());
         try {
@@ -272,7 +274,7 @@ public class SimuladorForm {
         tabbedPane1.addTab("Titulos", panelTitulos);
         splitPanelTitulos = new JSplitPane();
         splitPanelTitulos.setDividerSize(100);
-        splitPanelTitulos.setResizeWeight(0.5);
+        splitPanelTitulos.setResizeWeight(0.2);
         panelTitulos.add(splitPanelTitulos, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(800, 800), null, 0, false));
         listTitulos = new JList();
         listTitulos.setSelectionMode(0);
@@ -311,7 +313,7 @@ public class SimuladorForm {
 
             while (true) {
                 if (running) {
-                    labelCiclo.setText("" + simulador.getCiclo());
+                    labelCiclo.setText("" + simulador.getCiclo() + " / " + simulador.getMaxCiclos());
                     labelEstado.setText("Ejecutando...");
 
                 } else {
@@ -321,7 +323,7 @@ public class SimuladorForm {
                 listTitulos.repaint();
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -335,7 +337,7 @@ public class SimuladorForm {
     }
 
 
-    class GraficadorDeTitulo extends Thread {
+    private class GraficadorDeTitulo extends Thread {
 
         final XYSeries series1 = new XYSeries("Precio");
         private final Titulo titulo;

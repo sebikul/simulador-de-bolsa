@@ -114,7 +114,7 @@
                 </constraints>
                 <properties>
                   <dividerSize value="100"/>
-                  <resizeWeight value="0.5"/>
+                  <resizeWeight value="0.2"/>
                 </properties>
                 <border type="none"/>
                 <children>

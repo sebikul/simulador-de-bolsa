@@ -49,12 +49,12 @@ public class InversorTest {
 
         mercado.addTitulo(titulo);
 
-        agenteDeBolsa.comprarTitulo(inversor, mercado, "SIMB", 2);
+        agenteDeBolsa.comprarTitulo(inversor, mercado, titulo, 2);
 
         assertEquals(60.0, agenteDeBolsa.getCapitalFrom(inversor), 10E-6);
         assertEquals(2L, (long) inversor.getTitulos().get(titulo));
 
-        agenteDeBolsa.venderTitulo(inversor, mercado, "SIMB", 1);
+        agenteDeBolsa.venderTitulo(inversor, mercado, titulo, 1);
 
         assertEquals(80.0, agenteDeBolsa.getCapitalFrom(inversor), 1);
         assertEquals(1L, (long) inversor.getTitulos().get(titulo));

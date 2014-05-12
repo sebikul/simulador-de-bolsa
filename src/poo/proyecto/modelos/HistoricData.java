@@ -3,18 +3,30 @@ package poo.proyecto.modelos;
 import poo.proyecto.simulador.Simulador;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * Almacena valores historicos.
+ */
 public class HistoricData {
 
+    /**
+     * Lista de valores almacenados.
+     */
     private List<Double> historico = new ArrayList<Double>(
             Simulador.DEFAULT_SIM_CYCLES);
 
+    /**
+     * Notifica el comienzo de un ciclo.
+     */
     public void notificarComienzoCiclo() {
     }
 
+    /**
+     * Notifica el fin de un ciclo.
+     *
+     * @param valor Valor de cierre del ciclo que sera agregado a la lista.
+     */
     public void notificarFinCiclo(double valor) {
         synchronized (this) {
             historico.add(valor);
@@ -25,25 +37,7 @@ public class HistoricData {
             }
         }
 
-
     }
 
-    public int getSize() {
-        return historico.size();
-    }
-
-    public double get(int iteracion) {
-        synchronized (this) {
-            return historico.get(iteracion);
-        }
-    }
-
-    public List<Double> get() {
-        return Collections.unmodifiableList(historico);
-    }
-
-    public Collection<Double> getFromCycle(int c) {
-        return Collections.unmodifiableList(historico.subList(c, historico.size()));
-    }
 
 }

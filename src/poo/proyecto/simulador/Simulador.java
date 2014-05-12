@@ -109,6 +109,8 @@ public abstract class Simulador extends Thread {
         this.hooks = hooks;
         this.maxCiclos = maxCiclos;
 
+        this.setName("Simulador");
+
         if (this.hooks != null)
             hooks.prepararSimulacion();
     }
