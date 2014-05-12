@@ -5,7 +5,7 @@ import org.junit.Test;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.titulos.Accion;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class InversorTest {
 
@@ -52,12 +52,12 @@ public class InversorTest {
         agenteDeBolsa.comprarTitulo(inversor, mercado, "SIMB", 2);
 
         assertEquals(60.0, agenteDeBolsa.getCapitalFrom(inversor), 10E-6);
-        assertEquals(2, inversor.getTitulos().get("SIMB").getAmount());
+        assertEquals(2L, (long) inversor.getTitulos().get(titulo));
 
-        agenteDeBolsa.venderTitulo(inversor,mercado,"SIMB",1);
+        agenteDeBolsa.venderTitulo(inversor, mercado, "SIMB", 1);
 
         assertEquals(80.0, agenteDeBolsa.getCapitalFrom(inversor), 1);
-        assertEquals(1, inversor.getTitulos().get("SIMB").getAmount());
+        assertEquals(1L, (long) inversor.getTitulos().get(titulo));
 
     }
 }

@@ -12,10 +12,5 @@ public class Accion extends Titulo {
         super(simbolo, valorInicial);
     }
 
-    @Override
-    public final String getName() {
-        return this.getClass().getName();
-    }
-
 
 }

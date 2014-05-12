@@ -1,13 +1,13 @@
 package poo.proyecto.modelos;
 
+import poo.proyecto.simulador.Simulador;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import poo.proyecto.simulador.Simulador;
-
-public class HistoricData implements Cloneable {
+public class HistoricData {
 
     private List<Double> historico = new ArrayList<Double>(
             Simulador.DEFAULT_SIM_CYCLES);
