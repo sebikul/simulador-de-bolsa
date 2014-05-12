@@ -118,7 +118,7 @@ public class AgenteDeBolsa {
 
                 Titulo titulo = decididorDeTitulos.getDecision().getObject();
 
-                if (inversor.getTitulos().containsKey(titulo.getSimbolo())) {
+                if (inversor.getTitulos().containsKey(titulo)) {
                     try {
 
                         double capital = capitalClientes.get(inversor);

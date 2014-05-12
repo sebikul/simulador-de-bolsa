@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public class ResultadosSimulacion {
 
-    private Collection<Titulo> titulos = null;
+    private Collection<Titulo> titulos;
     private ArrayList<Inversor> inversores = new ArrayList<Inversor>();
 
     public void setInversores(ArrayList<AgenteDeBolsa> agentes) {

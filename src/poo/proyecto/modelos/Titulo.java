@@ -18,14 +18,17 @@ public abstract class Titulo {
      * Almacena el valor inicial del titulo.
      */
     private final double valorInicial;
+
     /**
      * Almacena una instancia de consulta de los valores historicos del titulo.
      */
     private final HistoricData historico;
+
     /**
      * Almacena el valor actual del titulo.
      */
     private double valor;
+
     /**
      * Instancia de Random utilizado para calcular la variacion del valor
      * en cada compra o venta del titulo.
@@ -162,7 +165,7 @@ public abstract class Titulo {
     public final void notificarFinCiclo() {
 
         //synchronized (historico) {
-            historico.notificarFinCiclo(valor);
+        historico.notificarFinCiclo(valor);
         //}
 
 

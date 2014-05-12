@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 
 public class SimuladorForm {
-    private GuiSimulador simulador;
+    GuiSimulador simulador;
     private JTabbedPane tabbedPane1;
     private JPanel panel1;
     private JPanel panelTitulos;
@@ -335,12 +335,12 @@ public class SimuladorForm {
     }
 
 
-    private class GraficadorDeTitulo extends Thread {
+    class GraficadorDeTitulo extends Thread {
 
-        private final XYSeries series1 = new XYSeries("Precio");
+        final XYSeries series1 = new XYSeries("Precio");
         private final Titulo titulo;
         private final XYSeriesCollection dataset = new XYSeriesCollection();
-        private ChartPanel chartPanel = null;
+        private ChartPanel chartPanel;
         private boolean isActive = false;
 
         public GraficadorDeTitulo(Titulo titulo) {
