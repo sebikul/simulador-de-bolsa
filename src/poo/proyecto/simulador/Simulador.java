@@ -355,6 +355,8 @@ public abstract class Simulador extends Thread {
             for (Titulo titulo : titulos)
                 titulo.notificarFinCiclo();
 
+            //TODO notificar a inversores para valor historico.
+
             if (hooks != null)
                 hooks.postIteracion();
 

@@ -4,6 +4,7 @@ import java.util.Random;
 
 /**
  * Representa un titulo sobre el cual se puede operar.
+ * TODO serializable
  */
 public abstract class Titulo {
 

@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * Representa a un inversor dentro de la simulacion.
+ * TODO serializable
  */
 public class Inversor {
 
@@ -21,22 +22,22 @@ public class Inversor {
      * Almacena un mapa entra un titulo que posee el inversor y la cantidad que posee.
      */
     private final HashMap<Titulo, Integer> cartera = new HashMap<Titulo, Integer>();
-
+    /**
+     * Almacena una instancia de consulta de los valores historicos patrimoniales del inversor.
+     */
+    private final HistoricData historico;
     /**
      * Almacena el capital del inversor.
      */
     private double capital;
-
     /**
      * Almacena el riesgo personal del inversor.
      */
     private double riesgo = 0.5;
-
     /**
      * Almacena el agente de bolsa del inversor.
      */
     private AgenteDeBolsa agente;
-
     /**
      * Almacena el capital inicial del inversor.
      */
@@ -54,6 +55,8 @@ public class Inversor {
         this.capital = capitalInicial = capital;
         this.nombre = nombre;
         this.agente = agente;
+
+        historico = new HistoricData();
     }
 
     /**
@@ -334,6 +337,24 @@ public class Inversor {
      */
     public double getCapitalInicial() {
         return capitalInicial;
+    }
+
+    /**
+     * Notifica al inversor que finalizo el ciclo.
+     */
+    public final void notificarFinCiclo() {
+
+        historico.notificarFinCiclo(getPatrimonio());
+
+    }
+
+    /**
+     * Devuelve un objeto de consulta de valores historicos.
+     *
+     * @return Instancia de HistoricData que almacena los valores historicos del inversor.
+     */
+    public final HistoricData getHistorico() {
+        return historico;
     }
 
 }
