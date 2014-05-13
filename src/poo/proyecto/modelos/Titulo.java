@@ -23,11 +23,18 @@ public abstract class Titulo {
      * Almacena una instancia de consulta de los valores historicos del titulo.
      */
     private final HistoricData historico;
-
+    /**
+     * Almacena el volumen maximo disponible en la simulacion..
+     */
+    private final int volumen;
     /**
      * Almacena el valor actual del titulo.
      */
     private double valor;
+    /**
+     * Almacena el volumen en circulacion del titulo.
+     */
+    private int volumenEnCirculacion = 0;
 
     /**
      * Instancia de Random utilizado para calcular la variacion del valor
@@ -40,10 +47,12 @@ public abstract class Titulo {
      *
      * @param simbolo      Simbolo del titulo.
      * @param valorInicial Valor inicial del titulo.
+     * @param volumen      Volumen en circulacion
      */
-    public Titulo(String simbolo, double valorInicial) {
+    public Titulo(String simbolo, double valorInicial, int volumen) {
         this.simbolo = simbolo;
         this.valor = this.valorInicial = valorInicial;
+        this.volumen = volumen;
 
         historico = new HistoricData();
     }
@@ -109,7 +118,7 @@ public abstract class Titulo {
 
     @Override
     public String toString() {
-        return this.simbolo + " (" + this.valor + ")";
+        return this.simbolo + " (" + this.valor + ") | ( " + getVolumenEnCirculacion() + "/" + getVolumen() + ")";
     }
 
     public String printDebugInfo() {
@@ -130,6 +139,35 @@ public abstract class Titulo {
         //         + (valor + diff));
 
         valor += diff * cantidad;
+
+        volumenEnCirculacion += cantidad;
+    }
+
+    /**
+     * Retorna el volumen maximo disponible del titulo.
+     *
+     * @return Volumen maximo disponible del titulo.
+     */
+    public int getVolumen() {
+        return volumen;
+    }
+
+    /**
+     * Retorna el volumen en circulacion del titulo.
+     *
+     * @return Volumen en circulacion del titulo.
+     */
+    public int getVolumenEnCirculacion() {
+        return volumenEnCirculacion;
+    }
+
+    /**
+     * Retorna el volumen disponible para la compra del titulo.
+     *
+     * @return Volumen disponible para la compra del titulo.
+     */
+    public int getVolumenDisponible() {
+        return volumen - volumenEnCirculacion;
     }
 
     /**
@@ -140,12 +178,14 @@ public abstract class Titulo {
      */
     public final void notificarVenta(int cantidad) {
 
-        Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
+        Double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER * 10);
 
         // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
         //        + (valor - diff));
 
         valor -= diff * cantidad;
+
+        volumenEnCirculacion -= cantidad;
     }
 
     /**
@@ -172,4 +212,5 @@ public abstract class Titulo {
         rdm = null;
 
     }
+
 }

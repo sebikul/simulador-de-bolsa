@@ -42,12 +42,15 @@ public class SimuladorForm {
     private JButton iniciarBoton;
     private JLabel labelCiclo;
     private JSplitPane splitPanelTitulos;
+    private JSplitPane splitPanelInversores;
     private DefaultListModel modelTitulos = new DefaultListModel();
     private DefaultListModel modelInversores = new DefaultListModel();
     private CycleThread cycleThread = new CycleThread();
 
 
-    private HashMap<Titulo, GraficadorDeTitulo> graficadores = new HashMap<Titulo, GraficadorDeTitulo>();
+    private HashMap<Titulo, GraficadorDeDatos> graficadoresDeTitulos = new HashMap<Titulo, GraficadorDeDatos>();
+    private HashMap<Inversor, GraficadorDeDatos> graficadoresDeInversores = new HashMap<Inversor, GraficadorDeDatos>();
+
 
     public SimuladorForm() {
 
@@ -134,15 +137,19 @@ public class SimuladorForm {
         for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
             modelTitulos.addElement(titulo);
 
-            GraficadorDeTitulo tmp = new GraficadorDeTitulo(titulo);
+            GraficadorDeDatos tmp = new GraficadorDeDatos(titulo);
             tmp.start();
-            graficadores.put(titulo, tmp);
+            graficadoresDeTitulos.put(titulo, tmp);
         }
 
         for (AgenteDeBolsa agente : simulador.getAgentes()) {
 
             for (Inversor inversor : agente.getClientes().keySet()) {
                 modelInversores.addElement(inversor);
+
+                GraficadorDeDatos tmp = new GraficadorDeDatos(inversor);
+                tmp.start();
+                graficadoresDeInversores.put(inversor, tmp);
             }
 
         }
@@ -153,14 +160,14 @@ public class SimuladorForm {
 
     private void titulosSelectionChanged() {
 
-        for (GraficadorDeTitulo graficador : graficadores.values()) {
+        for (GraficadorDeDatos graficador : graficadoresDeTitulos.values()) {
             graficador.setInactive();
         }
 
 
         Titulo titulo = (Titulo) listTitulos.getSelectedValue();
 
-        GraficadorDeTitulo graficador = graficadores.get(titulo);
+        GraficadorDeDatos graficador = graficadoresDeTitulos.get(titulo);
 
         splitPanelTitulos.setRightComponent(graficador.getChartPanel());
         graficador.setActive();
@@ -168,6 +175,19 @@ public class SimuladorForm {
     }
 
     private void inversoresSelectionChanged() {
+
+
+        for (GraficadorDeDatos graficador : graficadoresDeInversores.values()) {
+            graficador.setInactive();
+        }
+
+
+        Inversor inversor = (Inversor) listInversores.getSelectedValue();
+
+        GraficadorDeDatos graficador = graficadoresDeInversores.get(inversor);
+
+        splitPanelInversores.setRightComponent(graficador.getChartPanel());
+        graficador.setActive();
 
     }
 
@@ -180,7 +200,15 @@ public class SimuladorForm {
 
         for (Titulo titulo : simulador.getMercado().getTitulos().values()) {
 
-            graficadores.get(titulo).addToSeries((int) simulador.getCiclo(), titulo.getValor());
+            graficadoresDeTitulos.get(titulo).addToSeries(simulador.getCiclo(), titulo.getValor());
+        }
+
+        for (AgenteDeBolsa agente : simulador.getAgentes()) {
+
+            for (Inversor inversor : agente.getClientes().keySet()) {
+                graficadoresDeInversores.get(inversor).addToSeries(simulador.getCiclo(), inversor.getPatrimonio());
+            }
+
         }
 
 
@@ -284,15 +312,16 @@ public class SimuladorForm {
         panelInversores = new JPanel();
         panelInversores.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Inversores", panelInversores);
-        final JSplitPane splitPane1 = new JSplitPane();
-        panelInversores.add(splitPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
+        splitPanelInversores = new JSplitPane();
+        splitPanelInversores.setResizeWeight(0.2);
+        panelInversores.add(splitPanelInversores, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
         scrollPane1.setHorizontalScrollBarPolicy(31);
-        splitPane1.setLeftComponent(scrollPane1);
+        splitPanelInversores.setLeftComponent(scrollPane1);
         listInversores = new JList();
         scrollPane1.setViewportView(listInversores);
         final Spacer spacer4 = new Spacer();
-        splitPane1.setRightComponent(spacer4);
+        splitPanelInversores.setRightComponent(spacer4);
     }
 
     /**
@@ -321,6 +350,7 @@ public class SimuladorForm {
                 }
 
                 listTitulos.repaint();
+                listInversores.repaint();
 
                 try {
                     Thread.sleep(100);
@@ -337,16 +367,16 @@ public class SimuladorForm {
     }
 
 
-    private class GraficadorDeTitulo extends Thread {
+    private class GraficadorDeDatos<T> extends Thread {
 
         final XYSeries series1 = new XYSeries("Precio");
-        private final Titulo titulo;
+        private final T obj;
         private final XYSeriesCollection dataset = new XYSeriesCollection();
         private ChartPanel chartPanel;
         private boolean isActive = false;
 
-        public GraficadorDeTitulo(Titulo titulo) {
-            this.titulo = titulo;
+        public GraficadorDeDatos(T obj) {
+            this.obj = obj;
             dataset.addSeries(series1);
         }
 
@@ -363,9 +393,11 @@ public class SimuladorForm {
         }
 
         public void run() {
-            final JFreeChart chart = createChart(dataset, titulo);
+            final JFreeChart chart = createChart(dataset, obj);
             chartPanel = new ChartPanel(chart);
             chartPanel.setPreferredSize(new Dimension(500, 270));
+
+            chartPanel.repaint();
 
             while (true) {
                 try {
@@ -393,10 +425,14 @@ public class SimuladorForm {
 
         }
 
-        private JFreeChart createChart(final XYDataset dataset, Titulo titulo) {
+        public void repaintChart() {
+            chartPanel.repaint();
+        }
+
+        private JFreeChart createChart(final XYDataset dataset, T obj) {
 
             final JFreeChart chart = ChartFactory.createXYLineChart(
-                    "Grafico de precios: " + titulo.getSimbolo(), "Iteracion", "Valor",
+                    "Grafico: " + obj.toString(), "Iteracion", "Valor",
                     dataset, PlotOrientation.VERTICAL, true, true, false);
 
             chart.setBackgroundPaint(Color.white);

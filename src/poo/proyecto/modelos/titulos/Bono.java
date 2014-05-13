@@ -12,8 +12,8 @@ public class Bono extends Titulo {
     private double valor;
 
 
-    public Bono(String simbolo, double valorInicial, Date vencimiento) {
-        super(simbolo, valorInicial);
+    public Bono(String simbolo, double valorInicial, int volumen, Date vencimiento) {
+        super(simbolo, valorInicial, volumen);
         this.vencimiento = vencimiento;
     }
 

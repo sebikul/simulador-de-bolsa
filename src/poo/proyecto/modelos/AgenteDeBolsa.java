@@ -108,23 +108,31 @@ public class AgenteDeBolsa {
      */
     public void notificarIteracion(Mercado mercado) {
 
-        Decididor<Titulo> decididorDeTitulos = new Decididor<Titulo>();
-
-        for (Titulo titulo : mercado.getTitulos().values()) {
-            decididorDeTitulos.addDecision(new Decision<Titulo>(titulo,
-                    (int) titulo.getValor() + 1));
-        }
-
 
         for (Inversor inversor : capitalClientes.keySet()) {
 
+            //  if(inversor.getPatrimonio())
 
             Map<Titulo, Integer> elecciones = inversor.getOrdenesDeCompra(mercado);
 
             for (Map.Entry<Titulo, Integer> entrada : elecciones.entrySet()) {
 
                 try {
-                    comprarTitulo(inversor, mercado, entrada.getKey(), entrada.getValue());
+
+                    Titulo titulo = entrada.getKey();
+
+                    int cantidad = entrada.getValue();
+
+
+                    if (cantidad > titulo.getVolumenDisponible()) {
+                        cantidad = titulo.getVolumenDisponible();
+
+                        if (cantidad == 0) {
+                            continue;
+                        }
+                    }
+
+                    comprarTitulo(inversor, mercado, titulo, cantidad);
 
                 } catch (TituloNoExisteException e) {
 

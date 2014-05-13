@@ -199,6 +199,23 @@ public abstract class Simulador extends Thread {
         generoAgentes = true;
     }
 
+    public final int getVolumenEnCirculacion(Titulo titulo) {
+
+        int volumen = 0;
+
+        for (AgenteDeBolsa agenteDeBolsa : agentes) {
+            for (Inversor inversor : agenteDeBolsa.getClientes().keySet()) {
+                if (inversor.getTitulos().containsKey(titulo)) {
+                    volumen += inversor.getTitulos().get(titulo);
+                }
+            }
+        }
+
+
+        return volumen;
+
+    }
+
     /**
      * Genera los inversores que podran operar en el mercado. Se asignan aleatoriamente a
      * los agentes creados con generarAgentes().

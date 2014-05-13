@@ -163,7 +163,7 @@ public class Inversor {
 
     @Override
     public final String toString() {
-        return this.nombre;
+        return this.nombre + " (" + getPatrimonio() + ")";
     }
 
     /**

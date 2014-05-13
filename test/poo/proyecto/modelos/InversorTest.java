@@ -43,7 +43,10 @@ public class InversorTest {
 
         agenteDeBolsa.agregarInversor(inversor);
 
-        Titulo titulo = new Accion("SIMB", 20.0);
+        Titulo titulo = new Accion("SIMB", 20.0, 2);
+        assertEquals(2, titulo.getVolumenDisponible());
+        assertEquals(2, titulo.getVolumen());
+        assertEquals(0, titulo.getVolumenEnCirculacion());
 
         titulo.notificarComienzoCiclo();
 
@@ -53,11 +56,15 @@ public class InversorTest {
 
         assertEquals(60.0, agenteDeBolsa.getCapitalFrom(inversor), 10E-6);
         assertEquals(2L, (long) inversor.getTitulos().get(titulo));
+        assertEquals(0, titulo.getVolumenDisponible());
+        assertEquals(2, titulo.getVolumenEnCirculacion());
 
         agenteDeBolsa.venderTitulo(inversor, mercado, titulo, 1);
 
         assertEquals(80.0, agenteDeBolsa.getCapitalFrom(inversor), 1);
         assertEquals(1L, (long) inversor.getTitulos().get(titulo));
+        assertEquals(1, titulo.getVolumenDisponible());
+        assertEquals(1, titulo.getVolumenEnCirculacion());
 
     }
 }

@@ -1,6 +1,7 @@
 package poo.proyecto.helpers;
 
 import java.io.Console;
+import java.util.Scanner;
 
 
 public class InputHelper {
@@ -68,7 +69,6 @@ public class InputHelper {
                 c.printf("\n" + err + "\n");
             }
             strIn = ask(msg + (hasDef ? " [" + 0 + "]" : "") + ": ");
-
             if (!strIn.isEmpty()) {
 
                 ansInvalida = false;
