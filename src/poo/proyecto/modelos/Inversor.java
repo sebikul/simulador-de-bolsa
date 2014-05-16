@@ -37,7 +37,7 @@ public class Inversor {
 	/**
 	 * Almacena el riesgo personal del inversor.
 	 */
-	private double riesgo = 0.5;
+	private final double riesgo;
 
 	/**
 	 * Almacena el agente de bolsa del inversor.
@@ -59,10 +59,16 @@ public class Inversor {
 	 * @param agente
 	 *            Instancia del agente de bolsa que administrara su cartera.
 	 */
-	public Inversor(String nombre, double capital, AgenteDeBolsa agente) {
+	public Inversor(String nombre, double capital, AgenteDeBolsa agente,
+			double riesgo) throws Exception {
+
+		if (riesgo <= 0 || riesgo >= 1) {
+			throw new Exception();
+		}
 
 		this.capital = capitalInicial = capital;
 		this.nombre = nombre;
+		this.riesgo = riesgo;
 		this.agente = agente;
 
 		historico = new HistoricData();
@@ -149,20 +155,6 @@ public class Inversor {
 	 */
 	public final double getRiesgo() {
 		return riesgo;
-	}
-
-	/**
-	 * Setea el riesgo del inversor.
-	 * 
-	 * @param riesgo
-	 *            Riesgo del inversor. En caso de ser invalido se ignora. 0 <
-	 *            riesgo < 1
-	 */
-	public final void setRiesgo(double riesgo) {
-		if (riesgo <= 0 || riesgo >= 1) {
-			return;
-		}
-		this.riesgo = riesgo;
 	}
 
 	/**

@@ -27,7 +27,7 @@ public class AgenteDeBolsa {
 	 * Representa el riesgo personal que induce a las decisiones de los
 	 * inversores que representa.
 	 */
-	private double riesgoPersonal = 0.5;
+	private final double riesgoPersonal = 0.5;
 
 	/**
 	 * Construye un agente de bolsa.
@@ -252,10 +252,6 @@ public class AgenteDeBolsa {
 
 	public double getRiesgoPersonal() {
 		return riesgoPersonal;
-	}
-
-	public void setRiesgoPersonal(double riesgoPersonal) {
-		this.riesgoPersonal = riesgoPersonal;
 	}
 
 	public String printDebugInfo() {

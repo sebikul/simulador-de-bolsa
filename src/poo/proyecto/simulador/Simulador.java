@@ -128,7 +128,7 @@ public abstract class Simulador extends Thread {
 	 * 
 	 * @return Cantidad de ciclos a simular.
 	 */
-	public int getMaxCiclos() {
+	public final int getMaxCiclos() {
 		return maxCiclos;
 	}
 
@@ -138,7 +138,7 @@ public abstract class Simulador extends Thread {
 	 * @param maxCiclos
 	 *            Cantidad de ciclos a simular.
 	 */
-	public void setMaxCiclos(int maxCiclos) {
+	public final void setMaxCiclos(int maxCiclos) {
 		this.maxCiclos = maxCiclos;
 	}
 
@@ -148,7 +148,7 @@ public abstract class Simulador extends Thread {
 	 * 
 	 * @return True si el simulador de ejecuto alguna vez.
 	 */
-	public boolean hasStarted() {
+	public final boolean hasStarted() {
 		return hasStarted;
 	}
 
@@ -260,8 +260,9 @@ public abstract class Simulador extends Thread {
 				break;
 			}
 
+			// TODO riesgo aleatorio
 			agente.agregarInversor(new Inversor("Inversor " + (i + 1), 1000,
-					agente));
+					agente, 0.5));
 		}
 
 		generoInversores = true;

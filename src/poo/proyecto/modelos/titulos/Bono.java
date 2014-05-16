@@ -9,7 +9,6 @@ public class Bono extends Titulo {
 
     private final Date vencimiento;
     private long interes;
-    private double valor;
 
 
     public Bono(String simbolo, double valorInicial, int volumen, Date vencimiento) {

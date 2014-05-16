@@ -23,14 +23,17 @@ public abstract class Titulo {
 	 * Almacena una instancia de consulta de los valores historicos del titulo.
 	 */
 	private final HistoricData historico;
+
 	/**
 	 * Almacena el volumen maximo disponible en la simulacion..
 	 */
 	private final int volumen;
+
 	/**
 	 * Almacena el valor actual del titulo.
 	 */
 	private double valor;
+
 	/**
 	 * Almacena el volumen en circulacion del titulo.
 	 */
@@ -157,7 +160,7 @@ public abstract class Titulo {
 	 * 
 	 * @return Volumen maximo disponible del titulo.
 	 */
-	public int getVolumen() {
+	public final int getVolumen() {
 		return volumen;
 	}
 
@@ -166,7 +169,7 @@ public abstract class Titulo {
 	 * 
 	 * @return Volumen en circulacion del titulo.
 	 */
-	public int getVolumenEnCirculacion() {
+	public final int getVolumenEnCirculacion() {
 		return volumenEnCirculacion;
 	}
 
@@ -175,7 +178,7 @@ public abstract class Titulo {
 	 * 
 	 * @return Volumen disponible para la compra del titulo.
 	 */
-	public int getVolumenDisponible() {
+	public final int getVolumenDisponible() {
 		return volumen - volumenEnCirculacion;
 	}
 
