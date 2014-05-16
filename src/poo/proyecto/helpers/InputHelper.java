@@ -1,7 +1,6 @@
 package poo.proyecto.helpers;
 
 import java.io.Console;
-import java.util.Scanner;
 
 
 public class InputHelper {

@@ -1,262 +1,278 @@
 package poo.proyecto.modelos;
 
-import poo.proyecto.exceptions.CapitalInsuficienteException;
-import poo.proyecto.exceptions.TituloNoExisteException;
-import poo.proyecto.simulador.Decididor;
-import poo.proyecto.simulador.Decision;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import poo.proyecto.exceptions.CapitalInsuficienteException;
+import poo.proyecto.exceptions.TituloNoExisteException;
 
 /**
  * Representa a una agente de bolsa dentro de la simulacion.
  */
 public class AgenteDeBolsa {
 
-    /**
-     * Almacena el nombre del agente de bolsa.
-     */
-    private final String nombre;
-
-    /**
-     * Almacena un mapa que vincula a un inversor con su capital
-     * deltro de la cueta que posee con el agente de bolsa.
-     */
-    private HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
+	/**
+	 * Almacena el nombre del agente de bolsa.
+	 */
+	private final String nombre;
+
+	/**
+	 * Almacena un mapa que vincula a un inversor con su capital deltro de la
+	 * cueta que posee con el agente de bolsa.
+	 */
+	private HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
+
+	/**
+	 * Representa el riesgo personal que induce a las decisiones de los
+	 * inversores que representa.
+	 */
+	private double riesgoPersonal = 0.5;
+
+	/**
+	 * Construye un agente de bolsa.
+	 * 
+	 * @param nombre
+	 *            Nombre del agente de bolsa
+	 */
+	public AgenteDeBolsa(String nombre) {
+		this.nombre = nombre;
+
+	}
+
+	/**
+	 * Devuelve un mapa entre los inversores y su capital en la cuenta que
+	 * poseen con el inversor.
+	 * 
+	 * @return Mapa entre los inversores y el capital que poseen en la cuenta
+	 *         con el inversor.
+	 */
+	public final Map<Inversor, Double> getClientes() {
+		return Collections.unmodifiableMap(capitalClientes);
+	}
 
-    /**
-     * Representa el riesgo personal que induce a las decisiones de los
-     * inversores que representa.
-     */
-    private double riesgoPersonal = 0.5;
+	/**
+	 * Devuelve el capital de un inversor.
+	 * 
+	 * @param inversor
+	 *            Inversor del cual se quiere obtener el capital
+	 * @return Capital del inversor.
+	 */
+	public double getCapitalFrom(Inversor inversor) {
 
-    /**
-     * Construye un agente de bolsa.
-     *
-     * @param nombre Nombre del agente de bolsa
-     */
-    public AgenteDeBolsa(String nombre) {
-        this.nombre = nombre;
+		if (capitalClientes.containsKey(inversor)) {
+			return capitalClientes.get(inversor);
+		}
 
-    }
+		return 0.0;
 
-    /**
-     * Devuelve un mapa entre los inversores y su capital en la cuenta
-     * que poseen con el inversor.
-     *
-     * @return Mapa entre los inversores y el capital que poseen en la cuenta
-     * con el inversor.
-     */
-    public final Map<Inversor, Double> getClientes() {
-        return Collections.unmodifiableMap(capitalClientes);
-    }
+	}
 
-    /**
-     * Devuelve el capital de un inversor.
-     *
-     * @param inversor Inversor del cual se quiere obtener el capital
-     * @return Capital del inversor.
-     */
-    public double getCapitalFrom(Inversor inversor) {
+	/**
+	 * Agrega un inversor para que el agente de bolsa administre su cartera.
+	 * 
+	 * @param inversor
+	 *            Inversor a agregar,
+	 */
+	public final void agregarInversor(Inversor inversor) {
 
-        if (capitalClientes.containsKey(inversor)) {
-            return capitalClientes.get(inversor);
-        }
+		double cap = inversor.getCapitalParaCuenta();
 
-        return 0.0;
+		capitalClientes.put(inversor, cap);
 
-    }
+		try {
+			inversor.notificarTransferenciaDeCapital(cap);
+		} catch (CapitalInsuficienteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		AgenteDeBolsa that = (AgenteDeBolsa) o;
+
+		return nombre.equals(that.nombre);
+	}
+
+	@Override
+	public int hashCode() {
+		return nombre.hashCode();
+	}
 
-    /**
-     * Agrega un inversor para que el agente de bolsa administre su cartera.
-     *
-     * @param inversor Inversor a agregar,
-     */
-    public final void agregarInversor(Inversor inversor) {
+	/**
+	 * Notifica al agente de bolsa que comenzo una nueva iteracion.
+	 * 
+	 * @param mercado
+	 *            Mercado sobre el cual se esta operando.
+	 */
+	public void notificarIteracion(Mercado mercado) {
 
-        double cap = inversor.getCapitalParaCuenta();
+		for (Inversor inversor : capitalClientes.keySet()) {
 
-        capitalClientes.put(inversor, cap);
+			// if(inversor.getPatrimonio())
 
-        try {
-            inversor.notificarTransferenciaDeCapital(cap);
-        } catch (CapitalInsuficienteException e) {
-            e.printStackTrace();
-        }
-    }
+			Map<Titulo, Integer> elecciones = inversor
+					.getOrdenesDeCompra(mercado);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+			for (Map.Entry<Titulo, Integer> entrada : elecciones.entrySet()) {
 
-        AgenteDeBolsa that = (AgenteDeBolsa) o;
+				try {
 
-        return nombre.equals(that.nombre);
-    }
+					Titulo titulo = entrada.getKey();
 
-    @Override
-    public int hashCode() {
-        return nombre.hashCode();
-    }
+					int cantidad = entrada.getValue();
 
-    /**
-     * Notifica al agente de bolsa que comenzo una nueva iteracion.
-     *
-     * @param mercado Mercado sobre el cual se esta operando.
-     */
-    public void notificarIteracion(Mercado mercado) {
+					if (cantidad > titulo.getVolumenDisponible()) {
+						cantidad = titulo.getVolumenDisponible();
 
+						if (cantidad == 0) {
+							continue;
+						}
+					}
 
-        for (Inversor inversor : capitalClientes.keySet()) {
+					comprarTitulo(inversor, mercado, titulo, cantidad);
 
-            //  if(inversor.getPatrimonio())
+				} catch (TituloNoExisteException e) {
 
-            Map<Titulo, Integer> elecciones = inversor.getOrdenesDeCompra(mercado);
+				} catch (CapitalInsuficienteException e) {
 
-            for (Map.Entry<Titulo, Integer> entrada : elecciones.entrySet()) {
+				}
 
-                try {
+			}
 
-                    Titulo titulo = entrada.getKey();
+		}
 
-                    int cantidad = entrada.getValue();
+		for (Inversor inversor : capitalClientes.keySet()) {
 
+			Map<Titulo, Integer> elecciones = inversor.getOrdenesDeVenta();
 
-                    if (cantidad > titulo.getVolumenDisponible()) {
-                        cantidad = titulo.getVolumenDisponible();
+			for (Map.Entry<Titulo, Integer> entrada : elecciones.entrySet()) {
 
-                        if (cantidad == 0) {
-                            continue;
-                        }
-                    }
+				try {
+					venderTitulo(inversor, mercado, entrada.getKey(),
+							entrada.getValue());
+				} catch (TituloNoExisteException e) {
+					e.printStackTrace();
+				} catch (CapitalInsuficienteException e) {
 
-                    comprarTitulo(inversor, mercado, titulo, cantidad);
+				}
 
-                } catch (TituloNoExisteException e) {
+			}
 
-                } catch (CapitalInsuficienteException e) {
+		}
 
-                }
+	}
 
-            }
+	/**
+	 * Ejecuta la compra de un titulo.
+	 * 
+	 * @param inversor
+	 *            Inversor ejecutando la compra.
+	 * @param mercado
+	 *            Mercado sobre el cual se esta operando.
+	 * @param titulo
+	 *            Titulo que se esta comprando.
+	 * @param cantidad
+	 *            Cantidad que se desea comprar del titulo.
+	 * @throws TituloNoExisteException
+	 *             Si el titulo no existe.
+	 * @throws CapitalInsuficienteException
+	 *             Si el inversor no cuenta con el capital para realizar la
+	 *             compra
+	 */
+	public void comprarTitulo(Inversor inversor, Mercado mercado,
+			Titulo titulo, int cantidad) throws TituloNoExisteException,
+			CapitalInsuficienteException {
 
-        }
+		if (mercado == null || titulo == null || cantidad < 1) {
+			throw new IllegalArgumentException();
+		}
 
-        for (Inversor inversor : capitalClientes.keySet()) {
+		double precio = titulo.getValor() * cantidad;
 
-            Map<Titulo, Integer> elecciones = inversor.getOrdenesDeVenta();
+		double capitalViejo = capitalClientes.get(inversor);
 
-            for (Map.Entry<Titulo, Integer> entrada : elecciones.entrySet()) {
+		if (!capitalClientes.containsKey(inversor) || capitalViejo < precio) {
+			throw new CapitalInsuficienteException();
+		}
 
-                try {
-                    venderTitulo(inversor, mercado, entrada.getKey(), entrada.getValue());
-                } catch (TituloNoExisteException e) {
-                    e.printStackTrace();
-                } catch (CapitalInsuficienteException e) {
+		capitalClientes.put(inversor, capitalViejo - precio);
 
-                }
+		inversor.notificarCompra(titulo, cantidad);
+		titulo.notificarCompra(cantidad);
 
-            }
+	}
 
-        }
+	/**
+	 * Ejecuta la venta de un titulo.
+	 * 
+	 * @param inversor
+	 *            Inversor ejecutando la compra.
+	 * @param mercado
+	 *            Mercado sobre el cual se esta operando.
+	 * @param titulo
+	 *            Titulo que se esta comprando.
+	 * @param cantidad
+	 *            Cantidad que se desea comprar del titulo.
+	 * @throws TituloNoExisteException
+	 *             Si el titulo no existe.
+	 * @throws CapitalInsuficienteException
+	 *             Si el inversor no cuenta con el capital para realizar la
+	 *             compra
+	 */
+	public void venderTitulo(Inversor inversor, Mercado mercado, Titulo titulo,
+			int cantidad) throws CapitalInsuficienteException,
+			TituloNoExisteException {
 
-    }
+		if (mercado == null || titulo == null || cantidad < 1) {
+			throw new IllegalArgumentException();
+		}
 
-    /**
-     * Ejecuta la compra de un titulo.
-     *
-     * @param inversor Inversor ejecutando la compra.
-     * @param mercado  Mercado sobre el cual se esta operando.
-     * @param titulo   Titulo que se esta comprando.
-     * @param cantidad Cantidad que se desea comprar del titulo.
-     * @throws TituloNoExisteException      Si el titulo no existe.
-     * @throws CapitalInsuficienteException Si el inversor no cuenta con el capital para realizar la compra
-     */
-    public void comprarTitulo(Inversor inversor, Mercado mercado,
-                              Titulo titulo, int cantidad) throws TituloNoExisteException,
-            CapitalInsuficienteException {
+		if (!capitalClientes.containsKey(inversor)
+				|| cantidad > inversor.getTitulos().get(titulo)) {
 
-        if (mercado == null || titulo == null || cantidad < 1) {
-            throw new IllegalArgumentException();
-        }
+			throw new CapitalInsuficienteException();
+		}
 
-        double precio = titulo.getValor() * cantidad;
+		double precio = titulo.getValor() * cantidad;
 
-        double capitalViejo = capitalClientes.get(inversor);
+		double capitalViejo = capitalClientes.get(inversor);
 
-        if (!capitalClientes.containsKey(inversor) || capitalViejo < precio) {
-            throw new CapitalInsuficienteException();
-        }
+		capitalClientes.put(inversor, capitalViejo + precio);
 
-        capitalClientes.put(inversor, capitalViejo - precio);
+		inversor.notificarVenta(titulo, cantidad);
+		titulo.notificarVenta(cantidad);
 
-        inversor.notificarCompra(titulo, cantidad);
-        titulo.notificarCompra(cantidad);
+	}
 
+	public double getRiesgoPersonal() {
+		return riesgoPersonal;
+	}
 
-    }
+	public void setRiesgoPersonal(double riesgoPersonal) {
+		this.riesgoPersonal = riesgoPersonal;
+	}
 
-    /**
-     * Ejecuta la venta de un titulo.
-     *
-     * @param inversor Inversor ejecutando la compra.
-     * @param mercado  Mercado sobre el cual se esta operando.
-     * @param titulo   Titulo que se esta comprando.
-     * @param cantidad Cantidad que se desea comprar del titulo.
-     * @throws TituloNoExisteException      Si el titulo no existe.
-     * @throws CapitalInsuficienteException Si el inversor no cuenta con el capital para realizar la compra
-     */
-    public void venderTitulo(Inversor inversor, Mercado mercado,
-                             Titulo titulo, int cantidad) throws CapitalInsuficienteException,
-            TituloNoExisteException {
+	public String printDebugInfo() {
 
-        if (mercado == null || titulo == null || cantidad < 1) {
-            throw new IllegalArgumentException();
-        }
+		String ret = "Nombre:\t" + this.nombre + "\nClientes:\n\n";
 
-        if (!capitalClientes.containsKey(inversor)
-                || cantidad > inversor.getTitulos().get(titulo)) {
+		for (Inversor inversor : capitalClientes.keySet()) {
 
-            throw new CapitalInsuficienteException();
-        }
+			ret += inversor.printDebugInfo() + "\n\n";
 
-        double precio = titulo.getValor() * cantidad;
+		}
 
-        double capitalViejo = capitalClientes.get(inversor);
+		return ret;
 
-        capitalClientes.put(inversor, capitalViejo + precio);
+	}
 
-        inversor.notificarVenta(titulo, cantidad);
-        titulo.notificarVenta(cantidad);
-
-
-    }
-
-    public double getRiesgoPersonal() {
-        return riesgoPersonal;
-    }
-
-    public void setRiesgoPersonal(double riesgoPersonal) {
-        this.riesgoPersonal = riesgoPersonal;
-    }
-
-    public String printDebugInfo() {
-
-        String ret = "Nombre:\t" + this.nombre + "\nClientes:\n\n";
-
-        for (Inversor inversor : capitalClientes.keySet()) {
-
-            ret += inversor.printDebugInfo() + "\n\n";
-
-        }
-
-        return ret;
-
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 }
