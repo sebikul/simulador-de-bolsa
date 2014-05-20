@@ -7,222 +7,231 @@ import java.util.Random;
  */
 public abstract class Titulo {
 
-	static private final double PRICE_NORMALIZER = 100;
+    static private final double PRICE_NORMALIZER = 100;
 
-	/**
-	 * Almacena el simbolo del titulo.
-	 */
-	private final String simbolo;
+    /**
+     * Almacena el simbolo del titulo.
+     */
+    private final String simbolo;
 
-	/**
-	 * Almacena el valor inicial del titulo.
-	 */
-	private final double valorInicial;
+    /**
+     * Almacena el valor inicial del titulo.
+     */
+    private final double valorInicial;
 
-	/**
-	 * Almacena una instancia de consulta de los valores historicos del titulo.
-	 */
-	private final HistoricData historico;
+    /**
+     * Almacena una instancia de consulta de los valores historicos del titulo.
+     */
+    private final HistoricData historico;
 
-	/**
-	 * Almacena el volumen maximo disponible en la simulacion..
-	 */
-	private final int volumen;
+    /**
+     * Almacena el volumen maximo disponible en la simulacion..
+     */
+    private final int volumen;
 
-	/**
-	 * Almacena el valor actual del titulo.
-	 */
-	private double valor;
+    /**
+     * Almacena el valor actual del titulo.
+     */
+    private double valor;
 
-	/**
-	 * Almacena el volumen en circulacion del titulo.
-	 */
-	private int volumenEnCirculacion = 0;
+    /**
+     * Almacena el volumen en circulacion del titulo.
+     */
+    private int volumenEnCirculacion = 0;
 
-	/**
-	 * Instancia de Random utilizado para calcular la variacion del valor en
-	 * cada compra o venta del titulo.
-	 */
-	private Random rdm = null;
+    /**
+     * Instancia de Random utilizado para calcular la variacion del valor en
+     * cada compra o venta del titulo.
+     */
+    private Random rdm = null;
 
-	/**
-	 * Construye un nuevo titulo.
-	 * 
-	 * @param simbolo
-	 *            Simbolo del titulo.
-	 * @param valorInicial
-	 *            Valor inicial del titulo.
-	 * @param volumen
-	 *            Volumen en circulacion
-	 */
-	public Titulo(String simbolo, double valorInicial, int volumen) {
-		this.simbolo = simbolo;
-		this.valor = this.valorInicial = valorInicial;
-		this.volumen = volumen;
+    /**
+     * Almacena la cantidad de acciones compradas en un ciclo.
+     */
+    private int compras;
 
-		historico = new HistoricData();
-	}
+    /**
+     * Almacena la cantidad de acciones vendidas en un ciclo.
+     */
+    private int ventas;
 
-	/**
-	 * Devuelve el valor inicial del titulo.
-	 * 
-	 * @return Valor inicial del titulo.
-	 */
-	public final double getValorInicial() {
-		return valorInicial;
-	}
+    /**
+     * Construye un nuevo titulo.
+     *
+     * @param simbolo      Simbolo del titulo.
+     * @param valorInicial Valor inicial del titulo.
+     * @param volumen      Volumen en circulacion
+     */
+    public Titulo(String simbolo, double valorInicial, int volumen) {
+        this.simbolo = simbolo;
+        this.valor = this.valorInicial = valorInicial;
+        this.volumen = volumen;
 
-	/**
-	 * Devuelve un objeto de consulta de valores historicos.
-	 * 
-	 * @return Instancia de HistoricData que almacena los valores historicos del
-	 *         titulo.
-	 */
-	public final HistoricData getHistorico() {
-		return historico;
-	}
+        historico = new HistoricData(valorInicial);
+    }
 
-	/**
-	 * Devuelve el valor del titulo.
-	 * 
-	 * @return Valor del titulo.
-	 */
-	public final double getValor() {
-		return valor;
-	}
+    /**
+     * Devuelve el valor inicial del titulo.
+     *
+     * @return Valor inicial del titulo.
+     */
+    public final double getValorInicial() {
+        return valorInicial;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (!(o instanceof Titulo))
-			return false;
+    /**
+     * Devuelve un objeto de consulta de valores historicos.
+     *
+     * @return Instancia de HistoricData que almacena los valores historicos del
+     * titulo.
+     */
+    public final HistoricData getHistorico() {
+        return historico;
+    }
 
-		Titulo titulo = (Titulo) o;
+    /**
+     * Devuelve el valor del titulo.
+     *
+     * @return Valor del titulo.
+     */
+    public final double getValor() {
+        return valor;
+    }
 
-		if (Double.compare(titulo.valorInicial, valorInicial) != 0)
-			return false;
-		if (!simbolo.equals(titulo.simbolo))
-			return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Titulo))
+            return false;
 
-		return true;
-	}
+        Titulo titulo = (Titulo) o;
 
-	@Override
-	public int hashCode() {
-		int result;
-		long temp;
-		result = simbolo.hashCode();
-		temp = Double.doubleToLongBits(valorInicial);
-		result = 31 * result + (int) (temp ^ (temp >>> 32));
-		return result;
-	}
+        if (Double.compare(titulo.valorInicial, valorInicial) != 0)
+            return false;
+        if (!simbolo.equals(titulo.simbolo))
+            return false;
 
-	/**
-	 * Devuelve el simbolo del titulo.
-	 * 
-	 * @return Simbolo del titulo.
-	 */
-	public final String getSimbolo() {
-		return simbolo;
-	}
+        return true;
+    }
 
-	@Override
-	public String toString() {
-		return this.simbolo + " (" + this.valor + ") | ( "
-				+ getVolumenEnCirculacion() + "/" + getVolumen() + ")";
-	}
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = simbolo.hashCode();
+        temp = Double.doubleToLongBits(valorInicial);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 
-	public String printDebugInfo() {
-		return "$" + valorInicial + " --> $" + valor;
-	}
+    /**
+     * Devuelve el simbolo del titulo.
+     *
+     * @return Simbolo del titulo.
+     */
+    public final String getSimbolo() {
+        return simbolo;
+    }
 
-	/**
-	 * Notifica al titulo que se ejecuto una compra.
-	 * 
-	 * @param cantidad
-	 *            Cantidad operada en la compra.
-	 */
-	public final void notificarCompra(int cantidad) {
+    @Override
+    public String toString() {
+        return this.simbolo + " (" + this.valor + ") | ( "
+                + getVolumenEnCirculacion() + "/" + getVolumen() + ")";
+    }
 
-		Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
+    public String printDebugInfo() {
+        return "$" + valorInicial + " --> $" + valor;
+    }
 
-		// System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-		// + (valor + diff));
+    /**
+     * Notifica al titulo que se ejecuto una compra.
+     *
+     * @param cantidad Cantidad operada en la compra.
+     */
+    public final void notificarCompra(int cantidad) {
 
-		valor += diff * cantidad;
+        Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
 
-		volumenEnCirculacion += cantidad;
-	}
+        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+        // + (valor + diff));
 
-	/**
-	 * Retorna el volumen maximo disponible del titulo.
-	 * 
-	 * @return Volumen maximo disponible del titulo.
-	 */
-	public final int getVolumen() {
-		return volumen;
-	}
+        valor += diff * cantidad;
 
-	/**
-	 * Retorna el volumen en circulacion del titulo.
-	 * 
-	 * @return Volumen en circulacion del titulo.
-	 */
-	public final int getVolumenEnCirculacion() {
-		return volumenEnCirculacion;
-	}
+        volumenEnCirculacion += cantidad;
 
-	/**
-	 * Retorna el volumen disponible para la compra del titulo.
-	 * 
-	 * @return Volumen disponible para la compra del titulo.
-	 */
-	public final int getVolumenDisponible() {
-		return volumen - volumenEnCirculacion;
-	}
+        compras += cantidad;
+    }
 
-	/**
-	 * Notifica al titulo que se ejecuto una venta.
-	 * 
-	 * @param cantidad
-	 *            Cantidad operada en la venta.
-	 */
-	public final void notificarVenta(int cantidad) {
+    /**
+     * Retorna el volumen maximo disponible del titulo.
+     *
+     * @return Volumen maximo disponible del titulo.
+     */
+    public final int getVolumen() {
+        return volumen;
+    }
 
-		Double diff = valor * rdm.nextGaussian()
-				/ (Titulo.PRICE_NORMALIZER * 10);
+    /**
+     * Retorna el volumen en circulacion del titulo.
+     *
+     * @return Volumen en circulacion del titulo.
+     */
+    public final int getVolumenEnCirculacion() {
+        return volumenEnCirculacion;
+    }
 
-		// System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-		// + (valor - diff));
+    /**
+     * Retorna el volumen disponible para la compra del titulo.
+     *
+     * @return Volumen disponible para la compra del titulo.
+     */
+    public final int getVolumenDisponible() {
+        return volumen - volumenEnCirculacion;
+    }
 
-		valor -= diff * cantidad;
+    /**
+     * Notifica al titulo que se ejecuto una venta.
+     *
+     * @param cantidad Cantidad operada en la venta.
+     */
+    public final void notificarVenta(int cantidad) {
 
-		volumenEnCirculacion -= cantidad;
-	}
+        Double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER * 10);
 
-	/**
-	 * Notifica al titulo que se comenzo un ciclo nuevo.
-	 */
-	public final void notificarComienzoCiclo() {
+        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
+        // + (valor - diff));
 
-		rdm = new Random();
+        valor -= diff * cantidad;
 
-		historico.notificarComienzoCiclo();
+        volumenEnCirculacion -= cantidad;
 
-	}
+        ventas += cantidad;
 
-	/**
-	 * Notifica al titulo que finalizo el ciclo.
-	 */
-	public final void notificarFinCiclo() {
+    }
 
-		// synchronized (historico) {
-		historico.notificarFinCiclo(valor);
-		// }
+    /**
+     * Notifica al titulo que se comenzo un ciclo nuevo.
+     */
+    public final void notificarComienzoCiclo() {
 
-		rdm = null;
+        rdm = new Random();
 
-	}
+        compras = 0;
+        ventas = 0;
+        historico.agregar(valor);
+
+    }
+
+    /**
+     * Notifica al titulo que finalizo el ciclo.
+     */
+    public final void notificarFinCiclo() {
+
+        historico.actualizar(valor, compras, ventas);
+
+        rdm = null;
+
+    }
 
 }

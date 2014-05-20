@@ -3,41 +3,75 @@ package poo.proyecto.modelos;
 import java.util.ArrayList;
 import java.util.List;
 
-import poo.proyecto.simulador.Simulador;
-
 /**
  * Almacena valores historicos.
  */
 public class HistoricData {
 
-	/**
-	 * Lista de valores almacenados.
-	 */
-	private List<Double> historico = new ArrayList<Double>(
-			Simulador.DEFAULT_SIM_CYCLES);
 
-	/**
-	 * Notifica el comienzo de un ciclo.
-	 */
-	public void notificarComienzoCiclo() {
-	}
+    /**
+     * Largo máximo que va a tener la lista de valores almacenados.
+     */
+    static private final int MAX_SIZE = 80;
+    /**
+     * Largo que va a tener la lista de valores almacenados luego de que se limpie.
+     */
+    static private final int MIN_SIZE = 30;
+    /**
+     * Lista de valores almacenados.
+     */
+    private List<Ciclo> historico = new ArrayList<Ciclo>();
 
-	/**
-	 * Notifica el fin de un ciclo.
-	 * 
-	 * @param valor
-	 *            Valor de cierre del ciclo que sera agregado a la lista.
-	 */
-	public void notificarFinCiclo(double valor) {
-		synchronized (this) {
-			historico.add(valor);
 
-			if (historico.size() > 10 * Simulador.DEFAULT_SIM_CYCLES) {
-				historico = historico.subList(0, historico.size()
-						- Simulador.DEFAULT_SIM_CYCLES);
-			}
-		}
+    /**
+     * Construye un nuevo modelo de datos historicos.
+     *
+     * @param valor valor inicial del titulo
+     */
 
-	}
+    public HistoricData(double valor) {
+        historico.add(new Ciclo(valor, 0, 0));
+    }
+
+
+    /**
+     * Agregar nuevo valor al historico.
+     * La cantidad de compras, ventas es nula porque se
+     *
+     * @param valorInicial
+     */
+    public void agregar(double valorInicial) {
+
+        clean();
+
+        historico.add(new Ciclo(valorInicial, 0, 0));
+    }
+
+    public void actualizar(double valorActual, int compras, int ventas) {
+        int index = historico.size() - 1;
+        historico.get(index).setValor(valorActual);
+        historico.get(index).setCompras(compras);
+        historico.get(index).setVentas(ventas);
+    }
+
+//    public Ciclo getUltimo() {
+//        return historico.get(historico.size() - 1);
+//    }
+
+    private void clean() {
+        if (historico.size() == MAX_SIZE) {
+            List<Ciclo> aux = historico.subList(MAX_SIZE - 1 - MIN_SIZE, MAX_SIZE);
+            historico = aux;
+        }
+    }
+
+    public int size() {
+        return historico.size();
+    }
+
+    public Ciclo get(int index) {
+        return historico.get(index);
+    }
+
 
 }
