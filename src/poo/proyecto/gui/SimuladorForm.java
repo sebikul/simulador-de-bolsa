@@ -3,18 +3,11 @@ package poo.proyecto.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import poo.proyecto.mercados.Merval;
-import poo.proyecto.modelos.*;
+import poo.proyecto.modelos.AgenteDeBolsa;
+import poo.proyecto.modelos.Inversor;
+import poo.proyecto.modelos.ResultadosSimulacion;
+import poo.proyecto.modelos.Titulo;
 import poo.proyecto.simulador.GuiSimulador;
 import poo.proyecto.simulador.Simulador;
 import poo.proyecto.simulador.SimuladorHook;
@@ -30,7 +23,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
-public class SimuladorForm {
+public class SimuladorForm extends JFrame {
     private GuiSimulador simulador;
     private JTabbedPane tabbedPane1;
     private JPanel panel1;
@@ -52,10 +45,54 @@ public class SimuladorForm {
     private HashMap<Titulo, GraficadorDeDatos<Titulo>> graficadoresDeTitulos = new HashMap<Titulo, GraficadorDeDatos<Titulo>>();
     private HashMap<Inversor, GraficadorDeDatos<Inversor>> graficadoresDeInversores = new HashMap<Inversor, GraficadorDeDatos<Inversor>>();
 
-    public SimuladorForm(boolean estaCargado) {
+    public SimuladorForm(ResultadosSimulacion resultadosSimulacion) {
 
-        if (!estaCargado)
-            cargarSimulador();
+        cargarResultados(resultadosSimulacion);
+        iniciarBoton.setEnabled(false);
+
+        labelCiclo.setText("" + resultadosSimulacion.getCiclos());
+
+        setActionListeners();
+    }
+
+
+    public SimuladorForm() {
+
+        cargarSimulador();
+
+        setActionListeners();
+
+    }
+
+    public static void main() {
+        JFrame frame = new JFrame("SimuladorForm");
+
+        SimuladorForm simuladorForm = new SimuladorForm();
+
+        frame.setContentPane(simuladorForm.panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setTitle("Simulador");
+
+    }
+
+    public static void main(ResultadosSimulacion resultadosSimulacion) {
+        JFrame frame = new JFrame("SimuladorForm");
+
+        SimuladorForm simuladorForm = new SimuladorForm(resultadosSimulacion);
+
+        frame.setContentPane(simuladorForm.panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setTitle("Simulador");
+
+
+    }
+
+    private void setActionListeners() {
+
 
         listTitulos.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -91,43 +128,9 @@ public class SimuladorForm {
         });
     }
 
-    public static void main() {
-        JFrame frame = new JFrame("SimuladorForm");
-
-        SimuladorForm simuladorForm = new SimuladorForm(false);
-
-
-        frame.setContentPane(simuladorForm.panel1);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setTitle("Simulador");
-
-    }
-
-    public static void main(ResultadosSimulacion resultadosSimulacion) {
-        JFrame frame = new JFrame("SimuladorForm");
-
-        SimuladorForm simuladorForm = new SimuladorForm(true);
-        simuladorForm.cargarResultados(resultadosSimulacion);
-
-
-        simuladorForm.iniciarBoton.setEnabled(false);
-
-
-        frame.setContentPane(simuladorForm.panel1);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setTitle("Simulador");
-
-
-    }
-
     private void guardarButtonClicked() {
 
         JFileChooser fc = new JFileChooser();
-
 
         int returnVal = fc.showSaveDialog(guardarButton);
 
@@ -143,10 +146,11 @@ public class SimuladorForm {
 
                 FileOutputStream fileOutputStream = new FileOutputStream(file);
 
-
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 
                 objectOutputStream.writeObject(simulador.resultados());
+
+                JOptionPane.showMessageDialog(this, "Simulacion guardada");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -437,18 +441,15 @@ public class SimuladorForm {
         public void run() {
 
             while (true) {
-                if (running) {
-                    labelCiclo.setText("" + simulador.getCiclo() + " / "
-                            + simulador.getMaxCiclos());
-                    labelEstado.setText("Ejecutando...");
 
-                } else {
-                    labelEstado.setText("Detenido.");
-                }
+                labelCiclo.setText("" + simulador.getCiclo() + " / "
+                        + simulador.getMaxCiclos());
 
-                if (simulador.hasFinished()) {
+                labelEstado.setText(running ? "Ejecutando..." : "Detenido.");
+
+
+                if (simulador.hasFinished())
                     guardarButton.setEnabled(true);
-                }
 
                 listTitulos.repaint();
                 listInversores.repaint();
@@ -465,109 +466,6 @@ public class SimuladorForm {
         public void setRunning(boolean v) {
             running = v;
         }
-    }
-
-    private class GraficadorDeDatos<T extends HistoricStore> extends Thread {
-
-        final XYSeries series1 = new XYSeries("Precio");
-        private final T obj;
-        private final XYSeriesCollection dataset = new XYSeriesCollection();
-        private ChartPanel chartPanel;
-        private boolean isActive = false;
-
-        public GraficadorDeDatos(T obj) {
-            this.obj = obj;
-            dataset.addSeries(series1);
-
-
-            if (!obj.getHistorico().isEmpty()) {
-                int i = 0;
-
-                for (Ciclo ciclo : obj.getHistorico().getRawData()) {
-
-                    series1.add(i++, ciclo.getValor());
-
-                }
-            }
-
-        }
-
-        public boolean isActive() {
-            return isActive;
-        }
-
-        public void setActive() {
-            this.isActive = true;
-        }
-
-        public void setInactive() {
-            this.isActive = false;
-        }
-
-        public void run() {
-            final JFreeChart chart = createChart(dataset, obj);
-            chartPanel = new ChartPanel(chart);
-            chartPanel.setPreferredSize(new Dimension(500, 270));
-
-            chartPanel.repaint();
-
-
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        }
-
-        public ChartPanel getChartPanel() {
-            return chartPanel;
-        }
-
-        public void addToSeries(int ciclo, double value) {
-
-            series1.add(ciclo, value);
-
-            if (isActive) {
-                chartPanel.repaint();
-            }
-
-        }
-
-        public void repaintChart() {
-            chartPanel.repaint();
-        }
-
-        private JFreeChart createChart(final XYDataset dataset, T obj) {
-
-            final JFreeChart chart = ChartFactory.createXYLineChart("Grafico: "
-                            + obj.toString(), "Iteracion", "Valor", dataset,
-                    PlotOrientation.VERTICAL, true, true, false
-            );
-
-            chart.setBackgroundPaint(Color.white);
-
-            final XYPlot plot = chart.getXYPlot();
-            plot.setBackgroundPaint(Color.lightGray);
-
-            plot.setDomainGridlinePaint(Color.white);
-            plot.setRangeGridlinePaint(Color.white);
-
-            final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-            renderer.setSeriesLinesVisible(0, true);
-            renderer.setSeriesShapesVisible(0, false);
-            plot.setRenderer(renderer);
-
-            final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-            return chart;
-
-        }
-
     }
 
 }

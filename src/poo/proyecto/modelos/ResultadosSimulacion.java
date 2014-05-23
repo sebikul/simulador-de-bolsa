@@ -8,10 +8,16 @@ public class ResultadosSimulacion implements Serializable {
 
     private final Collection<Titulo> titulos;
     private final ArrayList<Inversor> inversores;
+    private final int ciclos;
 
-    public ResultadosSimulacion(ArrayList<Titulo> titulos, ArrayList<Inversor> inversores) {
+    public ResultadosSimulacion(ArrayList<Titulo> titulos, ArrayList<Inversor> inversores, int ciclos) {
         this.titulos = titulos;
         this.inversores = inversores;
+        this.ciclos = ciclos;
+    }
+
+    public int getCiclos() {
+        return ciclos;
     }
 
     public Collection<Titulo> getTitulos() {

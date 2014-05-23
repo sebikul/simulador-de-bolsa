@@ -335,7 +335,7 @@ public abstract class Simulador extends Thread {
         }
 
 
-        ResultadosSimulacion resultados = new ResultadosSimulacion(titulos, inversores);
+        ResultadosSimulacion resultados = new ResultadosSimulacion(titulos, inversores, ciclo);
 
 
         return resultados;
