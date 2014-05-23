@@ -14,10 +14,9 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import poo.proyecto.mercados.Merval;
-import poo.proyecto.modelos.AgenteDeBolsa;
-import poo.proyecto.modelos.Inversor;
-import poo.proyecto.modelos.Titulo;
+import poo.proyecto.modelos.*;
 import poo.proyecto.simulador.GuiSimulador;
+import poo.proyecto.simulador.Simulador;
 import poo.proyecto.simulador.SimuladorHook;
 
 import javax.swing.*;
@@ -26,6 +25,9 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class SimuladorForm {
@@ -42,6 +44,7 @@ public class SimuladorForm {
     private JLabel labelCiclo;
     private JSplitPane splitPanelTitulos;
     private JSplitPane splitPanelInversores;
+    private JButton guardarButton;
     private DefaultListModel modelTitulos = new DefaultListModel();
     private DefaultListModel modelInversores = new DefaultListModel();
     private CycleThread cycleThread = new CycleThread();
@@ -49,9 +52,10 @@ public class SimuladorForm {
     private HashMap<Titulo, GraficadorDeDatos<Titulo>> graficadoresDeTitulos = new HashMap<Titulo, GraficadorDeDatos<Titulo>>();
     private HashMap<Inversor, GraficadorDeDatos<Inversor>> graficadoresDeInversores = new HashMap<Inversor, GraficadorDeDatos<Inversor>>();
 
-    public SimuladorForm() {
+    public SimuladorForm(boolean estaCargado) {
 
-        cargarSimulador();
+        if (!estaCargado)
+            cargarSimulador();
 
         listTitulos.addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -78,17 +82,109 @@ public class SimuladorForm {
             }
         });
 
+        guardarButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                guardarButtonClicked();
+            }
+        });
     }
 
-    public static void main(String[] args) {
+    public static void main() {
         JFrame frame = new JFrame("SimuladorForm");
-        frame.setContentPane(new SimuladorForm().panel1);
+
+        SimuladorForm simuladorForm = new SimuladorForm(false);
+
+
+        frame.setContentPane(simuladorForm.panel1);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
         frame.setTitle("Simulador");
 
     }
+
+    public static void main(ResultadosSimulacion resultadosSimulacion) {
+        JFrame frame = new JFrame("SimuladorForm");
+
+        SimuladorForm simuladorForm = new SimuladorForm(true);
+        simuladorForm.cargarResultados(resultadosSimulacion);
+
+
+        simuladorForm.iniciarBoton.setEnabled(false);
+
+
+        frame.setContentPane(simuladorForm.panel1);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setTitle("Simulador");
+
+
+    }
+
+    private void guardarButtonClicked() {
+
+        JFileChooser fc = new JFileChooser();
+
+
+        int returnVal = fc.showSaveDialog(guardarButton);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+
+            String filePath = file.getAbsolutePath();
+            if (!filePath.endsWith(Simulador.FILE_TYPE)) {
+                file = new File(filePath + Simulador.FILE_TYPE);
+            }
+
+            try {
+
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+
+
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+
+                objectOutputStream.writeObject(simulador.resultados());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            System.out.println("cancelado");
+        }
+
+
+    }
+
+    public void cargarResultados(ResultadosSimulacion resultadosSimulacion) {
+
+        for (Titulo titulo : resultadosSimulacion.getTitulos()) {
+            modelTitulos.addElement(titulo);
+
+            GraficadorDeDatos<Titulo> tmp = new GraficadorDeDatos<Titulo>(
+                    titulo);
+            tmp.start();
+            graficadoresDeTitulos.put(titulo, tmp);
+        }
+
+        for (Inversor inversor : resultadosSimulacion.getInversores()) {
+            modelInversores.addElement(inversor);
+
+            GraficadorDeDatos<Inversor> tmp = new GraficadorDeDatos<Inversor>(
+                    inversor);
+            tmp.start();
+            graficadoresDeInversores.put(inversor, tmp);
+        }
+
+        listTitulos.setModel(modelTitulos);
+        listInversores.setModel(modelInversores);
+
+    }
+
 
     private void cargarSimulador() {
 
@@ -110,7 +206,7 @@ public class SimuladorForm {
     }
 
     private void pedirDatos() {
-        ParametrosForm dialog = new ParametrosForm();
+        ParametrosDialog dialog = new ParametrosDialog();
         dialog.setTitle("Ingrese los parametros de la simulacion.");
         dialog.pack();
         dialog.setVisible(true);
@@ -275,19 +371,23 @@ public class SimuladorForm {
         labelEstado.setText("Detenido.");
         panel2.add(labelEstado, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
         panel2.add(panel3, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         iniciarBoton = new JButton();
         iniciarBoton.setText("Iniciar");
-        panel3.add(iniciarBoton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(iniciarBoton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel3.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel3.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         detenerButton = new JButton();
         detenerButton.setEnabled(false);
         detenerButton.setText("Detener");
-        panel3.add(detenerButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel3.add(detenerButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        panel3.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel3.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        guardarButton = new JButton();
+        guardarButton.setEnabled(false);
+        guardarButton.setText("Guardar");
+        panel3.add(guardarButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Ciclo");
         panel2.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -346,6 +446,10 @@ public class SimuladorForm {
                     labelEstado.setText("Detenido.");
                 }
 
+                if (simulador.hasFinished()) {
+                    guardarButton.setEnabled(true);
+                }
+
                 listTitulos.repaint();
                 listInversores.repaint();
 
@@ -363,7 +467,7 @@ public class SimuladorForm {
         }
     }
 
-    private class GraficadorDeDatos<T> extends Thread {
+    private class GraficadorDeDatos<T extends HistoricStore> extends Thread {
 
         final XYSeries series1 = new XYSeries("Precio");
         private final T obj;
@@ -374,6 +478,18 @@ public class SimuladorForm {
         public GraficadorDeDatos(T obj) {
             this.obj = obj;
             dataset.addSeries(series1);
+
+
+            if (!obj.getHistorico().isEmpty()) {
+                int i = 0;
+
+                for (Ciclo ciclo : obj.getHistorico().getRawData()) {
+
+                    series1.add(i++, ciclo.getValor());
+
+                }
+            }
+
         }
 
         public boolean isActive() {
@@ -394,6 +510,7 @@ public class SimuladorForm {
             chartPanel.setPreferredSize(new Dimension(500, 270));
 
             chartPanel.repaint();
+
 
             while (true) {
                 try {

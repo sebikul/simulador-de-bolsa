@@ -3,14 +3,15 @@ package poo.proyecto.modelos;
 import poo.proyecto.exceptions.CapitalInsuficienteException;
 import poo.proyecto.exceptions.TituloNoExisteException;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Representa a un inversor dentro de la simulacion. TODO serializable
+ * Representa a un inversor dentro de la simulacion.
  */
-public class Inversor {
+public class Inversor implements Serializable, HistoricStore {
 
     /**
      * Almacena el nombre del inversor.
@@ -73,39 +74,39 @@ public class Inversor {
      *
      * @return Cartera del inversor.
      */
-    public final Map<Titulo, Integer> getTitulos() {
-        return Collections.unmodifiableMap(cartera);
+    public final HashMap<Titulo, Integer> getTitulos() {
+        return cartera;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        Inversor inversor = (Inversor) o;
-
-        if (Double.compare(inversor.capitalInicial, capitalInicial) != 0)
-            return false;
-        if (!agente.equals(inversor.agente))
-            return false;
-        if (!nombre.equals(inversor.nombre))
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = nombre.hashCode();
-        result = 31 * result + agente.hashCode();
-        temp = Double.doubleToLongBits(capitalInicial);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o)
+//            return true;
+//        if (o == null || getClass() != o.getClass())
+//            return false;
+//
+//        Inversor inversor = (Inversor) o;
+//
+//        if (Double.compare(inversor.capitalInicial, capitalInicial) != 0)
+//            return false;
+//        if (!agente.equals(inversor.agente))
+//            return false;
+//        if (!nombre.equals(inversor.nombre))
+//            return false;
+//
+//        return true;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result;
+//        long temp;
+//        result = nombre.hashCode();
+//        result = 31 * result + agente.hashCode();
+//        temp = Double.doubleToLongBits(capitalInicial);
+//        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        return result;
+//    }
 
     /**
      * Devuelve el capital actual del inversor.
@@ -220,7 +221,7 @@ public class Inversor {
 
     /**
      * Determina de forma aleatoria, basandose en el riesgo personal, si el
-     * inversor desea invertir. TODO hacer indices TODO ver el indice y el valor
+     * inversor desea invertir.
      * historico
      *
      * @return True si el inversor desea realizar una compra/venta.
@@ -315,7 +316,7 @@ public class Inversor {
 
     /**
      * Devuelve el capital que le sera transferido al agente de bolsa en caso de
-     * necesitarlo. TODO: Basado en el riesgo
+     * necesitarlo.
      *
      * @return Capital a transferir.
      */

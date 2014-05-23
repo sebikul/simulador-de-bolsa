@@ -1,44 +1,46 @@
 package poo.proyecto.modelos;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class ResultadosSimulacion {
+public class ResultadosSimulacion implements Serializable {
 
-	private Collection<Titulo> titulos;
-	private ArrayList<Inversor> inversores = new ArrayList<Inversor>();
+    private final Collection<Titulo> titulos;
+    private final ArrayList<Inversor> inversores;
 
-	public void setInversores(ArrayList<AgenteDeBolsa> agentes) {
-		for (AgenteDeBolsa agente : agentes) {
-			for (Inversor inversor : agente.getClientes().keySet()) {
-				inversores.add(inversor);
-			}
-		}
+    public ResultadosSimulacion(ArrayList<Titulo> titulos, ArrayList<Inversor> inversores) {
+        this.titulos = titulos;
+        this.inversores = inversores;
+    }
 
-	}
+    public Collection<Titulo> getTitulos() {
+        return titulos;
+    }
 
-	@Override
-	public String toString() {
 
-		String ret = "\nInversores:\n";
+    public ArrayList<Inversor> getInversores() {
+        return inversores;
+    }
 
-		for (Inversor inversor : inversores) {
-			ret += inversor.getNombre() + " [" + inversor.getCapitalInicial()
-					+ " --> " + inversor.getPatrimonio() + "]\n";
-		}
 
-		ret += "\nTitulos:\n";
+    @Override
+    public String toString() {
 
-		for (Titulo titulo : titulos) {
-			ret += titulo.getSimbolo() + " [" + titulo.getValorInicial()
-					+ " --> " + titulo.getValor() + "]\n";
-		}
+        String ret = "\nInversores:\n";
 
-		return ret;
-	}
+        for (Inversor inversor : inversores) {
+            ret += inversor.getNombre() + " [" + inversor.getCapitalInicial()
+                    + " --> " + inversor.getPatrimonio() + "]\n";
+        }
 
-	public void setTitulos(Collection<Titulo> values) {
-		this.titulos = values;
+        ret += "\nTitulos:\n";
 
-	}
+        for (Titulo titulo : titulos) {
+            ret += titulo.getSimbolo() + " [" + titulo.getValorInicial()
+                    + " --> " + titulo.getValor() + "]\n";
+        }
+
+        return ret;
+    }
 }

@@ -1,6 +1,8 @@
 package poo.proyecto.modelos;
 
-public class Ciclo {
+import java.io.Serializable;
+
+public class Ciclo implements Serializable {
 
     private double valor;
     private int compras;

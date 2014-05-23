@@ -1,11 +1,12 @@
 package poo.proyecto.modelos;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
- * Representa un titulo sobre el cual se puede operar. TODO serializable
+ * Representa un titulo sobre el cual se puede operar.
  */
-public abstract class Titulo {
+public abstract class Titulo implements Serializable, HistoricStore {
 
     static private final double PRICE_NORMALIZER = 100;
 
@@ -43,7 +44,7 @@ public abstract class Titulo {
      * Instancia de Random utilizado para calcular la variacion del valor en
      * cada compra o venta del titulo.
      */
-    private Random rdm = null;
+    private transient Random rdm = null;
 
     /**
      * Almacena la cantidad de acciones compradas en un ciclo.
