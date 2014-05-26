@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import poo.proyecto.Algoritmos.PriceAlgorithm;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.titulos.Accion;
 
@@ -19,7 +20,7 @@ public class InversorTest {
 
 		agenteDeBolsa = new AgenteDeBolsa("Nombre Agente");
 		inversor = new Inversor("Nombre Inversor", 100.0, agenteDeBolsa, 0.5);
-		mercado = new Merval();
+        mercado = new Merval(PriceAlgorithm.class);
 
 	}
 

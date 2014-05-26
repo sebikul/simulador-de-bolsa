@@ -1,5 +1,7 @@
 package poo.proyecto.modelos;
 
+import poo.proyecto.Algoritmos.Algorithm;
+
 import java.io.Serializable;
 import java.util.Random;
 
@@ -8,7 +10,7 @@ import java.util.Random;
  */
 public abstract class Titulo implements Serializable, HistoricStore {
 
-    static private final double PRICE_NORMALIZER = 100;
+    static public final double PRICE_NORMALIZER = 100;
 
     /**
      * Almacena el simbolo del titulo.
@@ -41,12 +43,6 @@ public abstract class Titulo implements Serializable, HistoricStore {
     private int volumenEnCirculacion = 0;
 
     /**
-     * Instancia de Random utilizado para calcular la variacion del valor en
-     * cada compra o venta del titulo.
-     */
-    private transient Random rdm = null;
-
-    /**
      * Almacena la cantidad de acciones compradas en un ciclo.
      */
     private int compras;
@@ -55,6 +51,7 @@ public abstract class Titulo implements Serializable, HistoricStore {
      * Almacena la cantidad de acciones vendidas en un ciclo.
      */
     private int ventas;
+    private Algorithm algoritmo;
 
     /**
      * Construye un nuevo titulo.
@@ -69,6 +66,12 @@ public abstract class Titulo implements Serializable, HistoricStore {
         this.volumen = volumen;
 
         historico = new HistoricData(valorInicial);
+
+
+    }
+
+    public void setAlgoritmo(Algorithm algoritmo) {
+        this.algoritmo = algoritmo;
     }
 
     /**
@@ -152,16 +155,13 @@ public abstract class Titulo implements Serializable, HistoricStore {
      */
     public final void notificarCompra(int cantidad) {
 
-        Double diff = valor * rdm.nextGaussian() / Titulo.PRICE_NORMALIZER;
-
-        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-        // + (valor + diff));
-
-        valor += diff * cantidad;
+        valor = algoritmo.getNuevoPrecioCompra(cantidad);
 
         volumenEnCirculacion += cantidad;
 
         compras += cantidad;
+
+
     }
 
     /**
@@ -198,12 +198,7 @@ public abstract class Titulo implements Serializable, HistoricStore {
      */
     public final void notificarVenta(int cantidad) {
 
-        Double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER * 10);
-
-        // System.out.println("Valor de " + simbolo + ": " + valor + " --> "
-        // + (valor - diff));
-
-        valor -= diff * cantidad;
+        valor = algoritmo.getNuevoPrecioVenta(cantidad);
 
         volumenEnCirculacion -= cantidad;
 
@@ -216,11 +211,11 @@ public abstract class Titulo implements Serializable, HistoricStore {
      */
     public final void notificarComienzoCiclo() {
 
-        rdm = new Random();
-
         compras = 0;
         ventas = 0;
         historico.agregar(valor);
+
+        algoritmo.notificarComienzoCiclo();
 
     }
 
@@ -231,7 +226,6 @@ public abstract class Titulo implements Serializable, HistoricStore {
 
         historico.actualizar(valor, compras, ventas);
 
-        rdm = null;
 
     }
 

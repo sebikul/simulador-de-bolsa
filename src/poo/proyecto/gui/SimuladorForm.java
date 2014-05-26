@@ -3,6 +3,7 @@ package poo.proyecto.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import poo.proyecto.Algoritmos.PriceAlgorithm;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.AgenteDeBolsa;
 import poo.proyecto.modelos.Inversor;
@@ -225,7 +226,7 @@ public class SimuladorForm extends JFrame {
         simulador.generarAgentes(dialog.getAgentes());
         try {
             simulador.generarInversores(dialog.getInversores());
-            simulador.setMercado(new Merval());
+            simulador.setMercado(new Merval(PriceAlgorithm.class));
         } catch (Exception e) {
             e.printStackTrace();
         }

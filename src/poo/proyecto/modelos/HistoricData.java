@@ -61,5 +61,12 @@ public class HistoricData implements Serializable {
         return historico.get(index);
     }
 
+    public List<Ciclo> getSubHistorico(int varTemp) {
+        int i = 0;
+        if (historico.size() > varTemp)
+            i = historico.size() - varTemp;
+        return historico.subList(i, historico.size());
+
+    }
 
 }
