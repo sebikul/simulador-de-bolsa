@@ -16,11 +16,13 @@ public class AgenteDeBolsa implements Serializable {
      * Almacena el nombre del agente de bolsa.
      */
     private final String nombre;
+
     /**
      * Representa el riesgo personal que induce a las decisiones de los
      * inversores que representa.
      */
     private final double riesgoPersonal = 0.5;
+
     /**
      * Almacena un mapa que vincula a un inversor con su capital deltro de la
      * cueta que posee con el agente de bolsa.
@@ -213,6 +215,11 @@ public class AgenteDeBolsa implements Serializable {
 
     }
 
+    /**
+     * Retorna el riesgo personal del agente de bolsa.
+     *
+     * @return Riesgo personal del agente de bolsa.
+     */
     public double getRiesgoPersonal() {
         return riesgoPersonal;
     }

@@ -5,6 +5,9 @@ import poo.proyecto.modelos.Titulo;
 
 import java.util.Random;
 
+/**
+ * Algoritmo "tonto" para calcular la variacion de los precios.
+ */
 public class DummyAlgorithm implements Algorithm {
 
     /**
@@ -13,6 +16,10 @@ public class DummyAlgorithm implements Algorithm {
      */
     private transient Random rdm = null;
 
+    /**
+     * Almacen de los datos historicos del objeto sobre el cual se le va a
+     * calcular una variacion.
+     */
     private HistoricData historico;
 
     public DummyAlgorithm(HistoricData historico) {

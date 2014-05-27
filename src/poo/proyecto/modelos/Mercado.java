@@ -17,6 +17,10 @@ public abstract class Mercado {
      */
     private final HashMap<String, Titulo> titulos = new HashMap<String, Titulo>();
 
+    /**
+     * Almacena la clase del algoritmo a utilizar para calcular los precios
+     * luego de cada ciclo.
+     */
     private final Class<? extends Algorithm> algorithmClass;
 
     /**

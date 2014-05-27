@@ -29,14 +29,17 @@ public class Inversor implements Serializable, HistoricStore {
      * patrimoniales del inversor.
      */
     private final HistoricData historico;
+
     /**
      * Almacena el riesgo personal del inversor.
      */
     private final double riesgo;
+
     /**
      * Almacena el capital del inversor.
      */
     private double capital;
+
     /**
      * Almacena el agente de bolsa del inversor.
      */

@@ -8,18 +8,47 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Almacena los resultados de la simulacion.
+ */
 public class ResultadosSimulacion implements Serializable {
 
+    /**
+     * Almacena la coleccion de titulos que se operaron en la suimulacion.
+     */
     private final Collection<Titulo> titulos;
+
+    /**
+     * Almacena la lista de inversores que participaron en la simulacion.
+     */
     private final ArrayList<Inversor> inversores;
+
+    /**
+     * Almacena la cantidad de ciclos que se simularon.
+     */
     private final int ciclos;
 
+    /**
+     * Construye una nueva instancia de la clase.
+     *
+     * @param titulos    Titulos operados durante la simulacion
+     * @param inversores Inversores que participaron en la simulacion
+     * @param ciclos     Cantidad de ciclos que se simularon
+     */
     public ResultadosSimulacion(ArrayList<Titulo> titulos, ArrayList<Inversor> inversores, int ciclos) {
         this.titulos = titulos;
         this.inversores = inversores;
         this.ciclos = ciclos;
     }
 
+    /**
+     * Carga los resultados de una simulacion desde un archivo.
+     *
+     * @param path Ruta del archivo guardado
+     * @return Instancia de ResultadosSimulacion
+     * @throws FileNotFoundException  Si no se encontro el archivo
+     * @throws InvalidObjectException Si el archivo esta corrupto
+     */
     static public final ResultadosSimulacion cargar(String path) throws FileNotFoundException, InvalidObjectException {
 
 
@@ -54,18 +83,40 @@ public class ResultadosSimulacion implements Serializable {
         return resultadosSimulacion;
     }
 
+    /**
+     * Retorna la cantidad de ciclos que se simularon.
+     *
+     * @return Cantidad de ciclos que se simularon.
+     */
     public int getCiclos() {
         return ciclos;
     }
 
+    /**
+     * Retorna los titulos que se operaron en la simulacion.
+     *
+     * @return Coleccion de titulos que se operaron
+     */
     public Collection<Titulo> getTitulos() {
         return titulos;
     }
 
+    /**
+     * Retorna una lista de los inversores que participaron en la simulacion.
+     *
+     * @return Lista de inversores que participaron en la simulacion.
+     */
     public ArrayList<Inversor> getInversores() {
         return inversores;
     }
 
+    /**
+     * Guarda los resultados de una simulacion en un archivo.
+     *
+     * @param path Ruta de destino
+     * @throws AccessDeniedException      Si no se pudo acceder al archivo
+     * @throws FileAlreadyExistsException Si ya existe el archivo
+     */
     public final void guardar(String path) throws AccessDeniedException, FileAlreadyExistsException {
 
         File file = new File(path);

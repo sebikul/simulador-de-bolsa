@@ -1,7 +1,7 @@
 package poo.proyecto.modelos;
 
 /**
- * Created by sebikul on 22/05/14.
+ * Interfaz usada para denotar un objeto que debe almacenar datos historicos.
  */
 public interface HistoricStore {
 
