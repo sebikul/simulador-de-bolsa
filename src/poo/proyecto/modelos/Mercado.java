@@ -1,7 +1,6 @@
 package poo.proyecto.modelos;
 
 import poo.proyecto.Algoritmos.Algorithm;
-import poo.proyecto.exceptions.TituloNoExisteException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;

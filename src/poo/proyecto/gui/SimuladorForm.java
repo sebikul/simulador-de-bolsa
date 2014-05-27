@@ -9,7 +9,6 @@ import poo.proyecto.modelos.Inversor;
 import poo.proyecto.modelos.ResultadosSimulacion;
 import poo.proyecto.modelos.Titulo;
 import poo.proyecto.simulador.GuiSimulador;
-import poo.proyecto.simulador.Simulador;
 import poo.proyecto.simulador.SimuladorHook;
 
 import javax.swing.*;
@@ -18,9 +17,8 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.HashMap;
 
 public class SimuladorForm extends JFrame {
@@ -135,30 +133,19 @@ public class SimuladorForm extends JFrame {
         int returnVal = fc.showSaveDialog(guardarButton);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-
-            String filePath = file.getAbsolutePath();
-            if (!filePath.endsWith(Simulador.FILE_TYPE)) {
-                file = new File(filePath + Simulador.FILE_TYPE);
-            }
 
             try {
-
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-
-                objectOutputStream.writeObject(simulador.resultados());
-
+                simulador.resultados().guardar(fc.getSelectedFile().getAbsolutePath());
                 JOptionPane.showMessageDialog(this, "Simulacion guardada");
-
-            } catch (Exception e) {
+            } catch (AccessDeniedException e) {
+                JOptionPane.showMessageDialog(this, "No se pudo escribir el archivo");
                 e.printStackTrace();
+            } catch (FileAlreadyExistsException e) {
+                JOptionPane.showMessageDialog(this, "El archivo ya existe");
+            } catch (Exception e) {
+
             }
 
-
-        } else {
-            System.out.println("cancelado");
         }
 
 

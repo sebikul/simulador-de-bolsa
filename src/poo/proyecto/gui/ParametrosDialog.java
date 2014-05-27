@@ -13,10 +13,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Ventana que permite ingresar los parametros necesarios para la simulacion.
+ */
 public class ParametrosDialog extends JDialog {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -333466625024245760L;
     private JPanel contentPane;
     private JButton buttonOK;
@@ -42,6 +43,13 @@ public class ParametrosDialog extends JDialog {
             }
         });
 
+        /*
+        FIXME
+        Usar reflection para obtener una lista de clases que heredan de
+        Algorithm requeriria una gran cantidad de codigo o una libreria externa,
+        Decidimos listarlos manualmente para mantener la parte grafica lo mas simple
+        posible.
+        */
         DefaultComboBoxModel<Class<? extends Algorithm>> algoritmos = new DefaultComboBoxModel<Class<? extends Algorithm>>();
         algoritmos.addElement(DummyAlgorithm.class);
         algoritmos.addElement(PriceAlgorithm.class);

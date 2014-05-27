@@ -59,7 +59,7 @@ public abstract class Titulo implements Serializable, HistoricStore {
      * Almacena la instancia del algoritmo utilizado para
      * calcular la variacion de precios.
      */
-    private Algorithm algoritmo;
+    private transient Algorithm algoritmo;
 
     /**
      * Construye un nuevo titulo.

@@ -17,6 +17,10 @@ public abstract class Simulador extends Thread {
      * Cantidad de ciclos por defecto que seran simulados.
      */
     static public final int DEFAULT_SIM_CYCLES = 365 * 2;
+
+    /**
+     * Extension de archivos de simulaciones guardadas.
+     */
     public static final String FILE_TYPE = ".pootpesim";
 
     /**
@@ -379,5 +383,6 @@ public abstract class Simulador extends Thread {
         hasFinished = true;
 
     }
+
 
 }

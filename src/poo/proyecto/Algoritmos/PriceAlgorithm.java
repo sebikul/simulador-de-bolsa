@@ -36,7 +36,7 @@ public class PriceAlgorithm implements Algorithm {
                 var /= 20;
             else
                 var /= 2;
-        return Math.abs(var);
+        return var;
     }
 
     private double getPrecioTemp(int varTemp) {
@@ -67,7 +67,7 @@ public class PriceAlgorithm implements Algorithm {
         double aux = Math.sqrt(Math.pow(varTemp, 2) + Math.pow(varFlujo, 2));
         if (varTemp == 0 || varFlujo == 0)
             return aux;
-        return -signo(varTemp * varFlujo) * aux * 0.8;
+        return -signo(varTemp * varFlujo) * aux * 2.0;
     }
 
     private double flujo(int indice) {

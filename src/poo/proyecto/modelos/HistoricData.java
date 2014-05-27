@@ -15,13 +15,11 @@ public class HistoricData implements Serializable {
      */
     private final ArrayList<Ciclo> historico = new ArrayList<Ciclo>();
 
-
     /**
      * Construye un nuevo modelo de datos historicos.
      *
      * @param valor valor inicial del titulo
      */
-
     public HistoricData(double valor) {
         historico.add(new Ciclo(valor));
     }

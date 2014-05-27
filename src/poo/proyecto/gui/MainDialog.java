@@ -4,12 +4,14 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import poo.proyecto.modelos.ResultadosSimulacion;
+import poo.proyecto.simulador.Simulador;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.InvalidObjectException;
 
 public class MainDialog extends JDialog {
     private JPanel contentPane;
@@ -53,64 +55,18 @@ public class MainDialog extends JDialog {
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-//        fc.addChoosableFileFilter(new FileFilter() {
-//            @Override
-//            public boolean accept(File file) {
-//
-//                return true;
-//
-////                if (file == null) {
-////                    return false;
-////                }
-////
-////                return getExtension(file).equals(Simulador.FILE_TYPE);
-//            }
-//
-//            @Override
-//            public String getDescription() {
-//                return "Resultados de simulacion";
-//            }
-//
-//            public String getExtension(File f) {
-//                String ext = null;
-//                String s = f.getName();
-//                int i = s.lastIndexOf('.');
-//
-//                if (i > 0 && i < s.length() - 1) {
-//                    ext = s.substring(i + 1).toLowerCase();
-//                }
-//                return ext;
-//            }
-//        });
-
-
         int returnVal = fc.showOpenDialog(this);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-
-            if (!file.exists()) {
-                return;
-            }
 
             try {
-
-                FileInputStream fileInputStream = new FileInputStream(file);
-
-                InputStream buffer = new BufferedInputStream(fileInputStream);
-
-
-                ObjectInputStream objectInputStream = new ObjectInputStream(buffer);
-
-                ResultadosSimulacion resultadosSimulacion = (ResultadosSimulacion) objectInputStream.readObject();
-
+                ResultadosSimulacion resultadosSimulacion = ResultadosSimulacion.cargar(fc.getSelectedFile().getAbsolutePath());
                 SimuladorForm.main(resultadosSimulacion);
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "El archivo no existe");
+            } catch (InvalidObjectException e) {
+                JOptionPane.showMessageDialog(this, "El archivo esta corrupto");
             }
-
 
         } else {
             return;

@@ -17,6 +17,10 @@ import java.awt.*;
 
 /**
  * Esta clase representa un grafico con datos historicos.
+ * <p/>
+ * Corre en un hilo separado para que el evento repaint() no se ejecute en serie
+ * con la ventana principal. Esto permite un graficado fluido
+ * y una simulacion más rapida.
  */
 class GraficadorDeDatos<T extends HistoricStore> extends Thread {
 
@@ -78,6 +82,20 @@ class GraficadorDeDatos<T extends HistoricStore> extends Thread {
         return chartPanel;
     }
 
+    /**
+     * FIXME
+     * <p/>
+     * Agrega un nuevo dato al modelo del graficador.
+     * <p/>
+     * Idealmente deberia pedir los datos del objeto que esta graficando, ya que se esta
+     * almacenando una copia de los datos. Sin embargo, acceder a estos datos
+     * implica sincronizar el hilo del graficador con el del simulador
+     * que contiene el dato que desea acceder. Esto implica agregar complejidad y errores
+     * innecesarios.
+     *
+     * @param ciclo
+     * @param value
+     */
     public void addToSeries(int ciclo, double value) {
 
         if (last == 0) {
