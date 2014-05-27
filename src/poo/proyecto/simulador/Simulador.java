@@ -205,21 +205,23 @@ public abstract class Simulador extends Thread {
         generoAgentes = true;
     }
 
-    public final int getVolumenEnCirculacion(Titulo titulo) {
-
-        int volumen = 0;
-
-        for (AgenteDeBolsa agenteDeBolsa : agentes) {
-            for (Inversor inversor : agenteDeBolsa.getClientes().keySet()) {
-                if (inversor.getTitulos().containsKey(titulo)) {
-                    volumen += inversor.getTitulos().get(titulo);
-                }
-            }
-        }
-
-        return volumen;
-
-    }
+// --Commented out by Inspection START (27/05/14 14:35):
+//    public final int getVolumenEnCirculacion(Titulo titulo) {
+//
+//        int volumen = 0;
+//
+//        for (AgenteDeBolsa agenteDeBolsa : agentes) {
+//            for (Inversor inversor : agenteDeBolsa.getClientes().keySet()) {
+//                if (inversor.getTitulos().containsKey(titulo)) {
+//                    volumen += inversor.getTitulos().get(titulo);
+//                }
+//            }
+//        }
+//
+//        return volumen;
+//
+//    }
+// --Commented out by Inspection STOP (27/05/14 14:35)
 
     /**
      * Genera los inversores que podran operar en el mercado. Se asignan
@@ -283,15 +285,6 @@ public abstract class Simulador extends Thread {
      */
     public boolean isReady() {
         return (generoAgentes && generoInversores && mercadoSeteado);
-    }
-
-    /**
-     * Devuelve True si el simulador esta corriendo.
-     *
-     * @return True si el simulador esta corriendo.
-     */
-    public final boolean isRunning() {
-        return this.running;
     }
 
     /**

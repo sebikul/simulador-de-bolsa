@@ -13,7 +13,7 @@ public class HistoricData implements Serializable {
     /**
      * Lista de valores almacenados.
      */
-    private ArrayList<Ciclo> historico = new ArrayList<Ciclo>();
+    private final ArrayList<Ciclo> historico = new ArrayList<Ciclo>();
 
 
     /**
@@ -23,7 +23,7 @@ public class HistoricData implements Serializable {
      */
 
     public HistoricData(double valor) {
-        historico.add(new Ciclo(valor, 0, 0));
+        historico.add(new Ciclo(valor));
     }
 
     public List<Ciclo> getRawData() {
@@ -42,7 +42,7 @@ public class HistoricData implements Serializable {
      */
     public void agregar(double valorInicial) {
 
-        historico.add(new Ciclo(valorInicial, 0, 0));
+        historico.add(new Ciclo(valorInicial));
     }
 
     public void actualizar(double valorActual, int compras, int ventas) {

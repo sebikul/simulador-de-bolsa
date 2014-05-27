@@ -5,7 +5,7 @@ import java.io.Console;
 
 public class InputHelper {
 
-    private Console c;
+    private final Console c;
 
 
     public InputHelper() {

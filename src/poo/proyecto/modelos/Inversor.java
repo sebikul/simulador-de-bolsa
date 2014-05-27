@@ -80,24 +80,6 @@ public class Inversor implements Serializable, HistoricStore {
 
 
     /**
-     * Devuelve el capital actual del inversor.
-     *
-     * @return Capital del inversor.
-     */
-    public final double getCapital() {
-        return capital;
-    }
-
-    /**
-     * Setea el capital del inversor.
-     *
-     * @param capital Nuevo capital del inversor.
-     */
-    public final void setCapital(double capital) {
-        this.capital = capital;
-    }
-
-    /**
      * Devuelve el patrimonio calculado del inversor. Calculado como: capital +
      * agente.inversores[this].capital + sum[titulo.valor for titulo in titulos]
      *
@@ -120,12 +102,6 @@ public class Inversor implements Serializable, HistoricStore {
      */
     public final String getNombre() {
         return nombre;
-    }
-
-    public String printDebugInfo() {
-        return "Nombre:\t" + this.nombre + "\n" + "Capital:\t$"
-                + agente.getCapitalFrom(this) + "\n" + "Titulos:\t"
-                + cartera.toString();
     }
 
     @Override
@@ -255,15 +231,6 @@ public class Inversor implements Serializable, HistoricStore {
      */
     private double calcularRiesgoTotal() {
         return (riesgo + agente.getRiesgoPersonal()) / 2;
-    }
-
-    /**
-     * Devuelve el agente de bolsa del inversor.
-     *
-     * @return Agente de bolsa del inversor.
-     */
-    public final AgenteDeBolsa getAgente() {
-        return agente;
     }
 
     /**

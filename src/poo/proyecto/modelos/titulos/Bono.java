@@ -1,10 +1,9 @@
 package poo.proyecto.modelos.titulos;
 
 
-import java.util.Date;
-
-import poo.proyecto.Algoritmos.Algorithm;
 import poo.proyecto.modelos.Titulo;
+
+import java.util.Date;
 
 public class Bono extends Titulo {
 

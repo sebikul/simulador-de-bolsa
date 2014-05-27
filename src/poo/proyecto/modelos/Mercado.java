@@ -23,7 +23,7 @@ public abstract class Mercado {
     /**
      * Construye una nueva instancia de un mercado.
      *
-     * @param algorithmClass
+     * @param algorithmClass Clase del algoritmo a utilizar
      */
     public Mercado(Class<? extends Algorithm> algorithmClass) {
         this.algorithmClass = algorithmClass;
@@ -47,22 +47,6 @@ public abstract class Mercado {
      */
     public final Map<String, Titulo> getTitulos() {
         return Collections.unmodifiableMap(titulos);
-    }
-
-    /**
-     * Devuelve un sibmolo basado en su nombre.
-     *
-     * @param simbolo Simbolo del titulo.
-     * @return Instancia del titulo.
-     * @throws TituloNoExisteException El titulo no existe en el mercado.
-     */
-    public final Titulo getFromSimbolo(String simbolo)
-            throws TituloNoExisteException {
-        if (!titulos.containsKey(simbolo)) {
-            throw new TituloNoExisteException(simbolo);
-        }
-
-        return titulos.get(simbolo);
     }
 
     /**

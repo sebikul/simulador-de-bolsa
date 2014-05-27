@@ -1,6 +1,5 @@
 package poo.proyecto.modelos.titulos;
 
-import poo.proyecto.Algoritmos.Algorithm;
 import poo.proyecto.modelos.Titulo;
 
 public class Accion extends Titulo {

@@ -8,10 +8,10 @@ public class Ciclo implements Serializable {
     private int compras;
     private int ventas;
 
-    public Ciclo(double valor, int compras, int ventas) {
+    public Ciclo(double valor) {
         this.valor = valor;
-        this.compras = compras;
-        this.ventas = ventas;
+        this.compras = 0;
+        this.ventas = 0;
     }
 
     public double getValor() {

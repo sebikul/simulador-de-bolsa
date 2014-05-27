@@ -25,7 +25,7 @@ public class AgenteDeBolsa implements Serializable {
      * Almacena un mapa que vincula a un inversor con su capital deltro de la
      * cueta que posee con el agente de bolsa.
      */
-    private HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
+    private final HashMap<Inversor, Double> capitalClientes = new HashMap<Inversor, Double>();
 
     /**
      * Construye un agente de bolsa.
@@ -115,8 +115,6 @@ public class AgenteDeBolsa implements Serializable {
 
                     comprarTitulo(inversor, mercado, titulo, cantidad);
 
-                } catch (TituloNoExisteException e) {
-
                 } catch (CapitalInsuficienteException e) {
 
                 }
@@ -157,9 +155,8 @@ public class AgenteDeBolsa implements Serializable {
      * @throws CapitalInsuficienteException Si el inversor no cuenta con el capital para realizar la
      *                                      compra
      */
-    public void comprarTitulo(Inversor inversor, Mercado mercado,
-                              Titulo titulo, int cantidad) throws TituloNoExisteException,
-            CapitalInsuficienteException {
+    private void comprarTitulo(Inversor inversor, Mercado mercado,
+                               Titulo titulo, int cantidad) throws CapitalInsuficienteException {
 
         if (mercado == null || titulo == null || cantidad < 1) {
             throw new IllegalArgumentException();
@@ -191,8 +188,8 @@ public class AgenteDeBolsa implements Serializable {
      * @throws CapitalInsuficienteException Si el inversor no cuenta con el capital para realizar la
      *                                      compra
      */
-    public void venderTitulo(Inversor inversor, Mercado mercado, Titulo titulo,
-                             int cantidad) throws CapitalInsuficienteException,
+    private void venderTitulo(Inversor inversor, Mercado mercado, Titulo titulo,
+                              int cantidad) throws CapitalInsuficienteException,
             TituloNoExisteException {
 
         if (mercado == null || titulo == null || cantidad < 1) {
@@ -229,15 +226,6 @@ public class AgenteDeBolsa implements Serializable {
             inversor.notificarFinCiclo();
         }
 
-    }
-
-    /**
-     * Devuelve el nombre del agente de bolsa.
-     *
-     * @return Nombre del agente de bolsa,
-     */
-    public String getNombre() {
-        return nombre;
     }
 
 
