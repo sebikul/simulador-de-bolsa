@@ -3,6 +3,9 @@ package poo.proyecto.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import poo.proyecto.Algoritmos.Algorithm;
+import poo.proyecto.Algoritmos.DummyAlgorithm;
+import poo.proyecto.Algoritmos.PriceAlgorithm;
 import poo.proyecto.simulador.Simulador;
 
 import javax.swing.*;
@@ -20,10 +23,12 @@ public class ParametrosDialog extends JDialog {
     private JTextField textInversores;
     private JTextField textAgentes;
     private JTextField textField1;
+    private JComboBox comboAlgoritmo;
 
     private int agentes = 0;
     private int inversores = 0;
     private int ciclos = Simulador.DEFAULT_SIM_CYCLES;
+    private Class<? extends Algorithm> algoritmo;
 
     public ParametrosDialog() {
         setContentPane(contentPane);
@@ -37,6 +42,17 @@ public class ParametrosDialog extends JDialog {
             }
         });
 
+        DefaultComboBoxModel<Class<? extends Algorithm>> algoritmos = new DefaultComboBoxModel<Class<? extends Algorithm>>();
+        algoritmos.addElement(DummyAlgorithm.class);
+        algoritmos.addElement(PriceAlgorithm.class);
+
+        comboAlgoritmo.setModel(algoritmos);
+
+
+    }
+
+    public Class<? extends Algorithm> getAlgoritmo() {
+        return algoritmo;
     }
 
     public int getCiclos() {
@@ -49,6 +65,7 @@ public class ParametrosDialog extends JDialog {
             agentes = Integer.parseInt(textAgentes.getText());
             inversores = Integer.parseInt(textInversores.getText());
             ciclos = Integer.parseInt(textField1.getText());
+            algoritmo = (Class) comboAlgoritmo.getSelectedItem();
 
             if (agentes <= 0 || inversores <= 0 || ciclos <= 0) {
                 throw new NumberFormatException();
@@ -101,7 +118,7 @@ public class ParametrosDialog extends JDialog {
         buttonOK.setText("OK");
         panel2.add(buttonOK, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel3.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Cantidad de Agentes de Bolsa");
@@ -120,6 +137,11 @@ public class ParametrosDialog extends JDialog {
         panel3.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         textField1 = new JTextField();
         panel3.add(textField1, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setText("Algoritmo");
+        panel3.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        comboAlgoritmo = new JComboBox();
+        panel3.add(comboAlgoritmo, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

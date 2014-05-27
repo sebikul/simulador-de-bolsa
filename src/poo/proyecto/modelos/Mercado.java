@@ -3,6 +3,7 @@ package poo.proyecto.modelos;
 import poo.proyecto.Algoritmos.Algorithm;
 import poo.proyecto.exceptions.TituloNoExisteException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ public abstract class Mercado {
      */
     private final HashMap<String, Titulo> titulos = new HashMap<String, Titulo>();
 
-    private Class<? extends Algorithm> algorithmClass;
+    private final Class<? extends Algorithm> algorithmClass;
 
     /**
      * Construye una nueva instancia de un mercado.
@@ -71,12 +72,16 @@ public abstract class Mercado {
      */
     public final void addTitulo(Titulo titulo) {
 
-
         try {
-            titulo.setAlgoritmo(algorithmClass.newInstance());
+
+            Algorithm algoritmo = (Algorithm) algorithmClass.getConstructors()[0].newInstance(titulo.getHistorico());
+
+            titulo.setAlgoritmo(algoritmo);
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
 

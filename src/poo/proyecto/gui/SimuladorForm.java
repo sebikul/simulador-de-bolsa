@@ -3,7 +3,6 @@ package poo.proyecto.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import poo.proyecto.Algoritmos.PriceAlgorithm;
 import poo.proyecto.mercados.Merval;
 import poo.proyecto.modelos.AgenteDeBolsa;
 import poo.proyecto.modelos.Inversor;
@@ -30,8 +29,8 @@ public class SimuladorForm extends JFrame {
     private JPanel panel1;
     private JPanel panelTitulos;
     private JPanel panelInversores;
-    private JList listTitulos;
-    private JList listInversores;
+    private JList<Titulo> listTitulos;
+    private JList<Inversor> listInversores;
     private JLabel labelEstado;
     private JButton detenerButton;
     private JButton iniciarBoton;
@@ -226,7 +225,7 @@ public class SimuladorForm extends JFrame {
         simulador.generarAgentes(dialog.getAgentes());
         try {
             simulador.generarInversores(dialog.getInversores());
-            simulador.setMercado(new Merval(PriceAlgorithm.class));
+            simulador.setMercado(new Merval(dialog.getAlgoritmo()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -264,7 +263,7 @@ public class SimuladorForm extends JFrame {
             graficador.setInactive();
         }
 
-        Titulo titulo = (Titulo) listTitulos.getSelectedValue();
+        Titulo titulo = listTitulos.getSelectedValue();
 
         GraficadorDeDatos<Titulo> graficador = graficadoresDeTitulos
                 .get(titulo);
@@ -281,7 +280,7 @@ public class SimuladorForm extends JFrame {
             graficador.setInactive();
         }
 
-        Inversor inversor = (Inversor) listInversores.getSelectedValue();
+        Inversor inversor = listInversores.getSelectedValue();
 
         GraficadorDeDatos<Inversor> graficador = graficadoresDeInversores
                 .get(inversor);

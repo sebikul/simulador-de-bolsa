@@ -23,6 +23,7 @@ class GraficadorDeDatos<T extends HistoricStore> extends Thread {
     final XYSeries series1 = new XYSeries("Precio");
     private final T obj;
     private final XYSeriesCollection dataset = new XYSeriesCollection();
+    private double last = 0;
     private ChartPanel chartPanel;
     private boolean isActive = false;
 
@@ -35,7 +36,8 @@ class GraficadorDeDatos<T extends HistoricStore> extends Thread {
 
             for (Ciclo ciclo : obj.getHistorico().getRawData()) {
 
-                series1.add(i++, ciclo.getValor());
+                series1.add(i, ciclo.getValor());
+                i++;
 
             }
         }
@@ -78,7 +80,10 @@ class GraficadorDeDatos<T extends HistoricStore> extends Thread {
 
     public void addToSeries(int ciclo, double value) {
 
-        series1.add(ciclo, value);
+        if (last == 0) {
+            last = value;
+        }
+        series1.add(ciclo, (last + value) / 2);
 
         if (isActive) {
             chartPanel.repaint();

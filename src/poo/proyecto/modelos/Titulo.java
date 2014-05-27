@@ -3,14 +3,16 @@ package poo.proyecto.modelos;
 import poo.proyecto.Algoritmos.Algorithm;
 
 import java.io.Serializable;
-import java.util.Random;
 
 /**
  * Representa un titulo sobre el cual se puede operar.
  */
 public abstract class Titulo implements Serializable, HistoricStore {
 
-    static public final double PRICE_NORMALIZER = 100;
+    /**
+     * Constante que se usa para minimizar la variacion de los precios.
+     */
+    static public final double PRICE_NORMALIZER = 70;
 
     /**
      * Almacena el simbolo del titulo.
@@ -23,7 +25,8 @@ public abstract class Titulo implements Serializable, HistoricStore {
     private final double valorInicial;
 
     /**
-     * Almacena una instancia de consulta de los valores historicos del titulo.
+     * Almacena una instancia de consulta de los
+     * valores historicos del titulo.
      */
     private final HistoricData historico;
 
@@ -51,6 +54,11 @@ public abstract class Titulo implements Serializable, HistoricStore {
      * Almacena la cantidad de acciones vendidas en un ciclo.
      */
     private int ventas;
+
+    /**
+     * Almacena la instancia del algoritmo utilizado para
+     * calcular la variacion de precios.
+     */
     private Algorithm algoritmo;
 
     /**
@@ -66,10 +74,13 @@ public abstract class Titulo implements Serializable, HistoricStore {
         this.volumen = volumen;
 
         historico = new HistoricData(valorInicial);
-
-
     }
 
+    /**
+     * Setea el algoritmo que se usara para calcular el precio luego de cada compra/venta.
+     *
+     * @param algoritmo Algoritmo a utilizar para recalcular el precio.
+     */
     public void setAlgoritmo(Algorithm algoritmo) {
         this.algoritmo = algoritmo;
     }
@@ -102,33 +113,6 @@ public abstract class Titulo implements Serializable, HistoricStore {
         return valor;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (!(o instanceof Titulo))
-            return false;
-
-        Titulo titulo = (Titulo) o;
-
-        if (Double.compare(titulo.valorInicial, valorInicial) != 0)
-            return false;
-        if (!simbolo.equals(titulo.simbolo))
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = simbolo.hashCode();
-        temp = Double.doubleToLongBits(valorInicial);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
     /**
      * Devuelve el simbolo del titulo.
      *
@@ -138,31 +122,6 @@ public abstract class Titulo implements Serializable, HistoricStore {
         return simbolo;
     }
 
-    @Override
-    public String toString() {
-        return this.simbolo + " (" + this.valor + ") | ( "
-                + getVolumenEnCirculacion() + "/" + getVolumen() + ")";
-    }
-
-    public String printDebugInfo() {
-        return "$" + valorInicial + " --> $" + valor;
-    }
-
-    /**
-     * Notifica al titulo que se ejecuto una compra.
-     *
-     * @param cantidad Cantidad operada en la compra.
-     */
-    public final void notificarCompra(int cantidad) {
-
-        valor = algoritmo.getNuevoPrecioCompra(cantidad);
-
-        volumenEnCirculacion += cantidad;
-
-        compras += cantidad;
-
-
-    }
 
     /**
      * Retorna el volumen maximo disponible del titulo.
@@ -207,6 +166,21 @@ public abstract class Titulo implements Serializable, HistoricStore {
     }
 
     /**
+     * Notifica al titulo que se ejecuto una compra.
+     *
+     * @param cantidad Cantidad operada en la compra.
+     */
+    public final void notificarCompra(int cantidad) {
+
+        valor = algoritmo.getNuevoPrecioCompra(cantidad);
+
+        volumenEnCirculacion += cantidad;
+
+        compras += cantidad;
+
+    }
+
+    /**
      * Notifica al titulo que se comenzo un ciclo nuevo.
      */
     public final void notificarComienzoCiclo() {
@@ -227,6 +201,37 @@ public abstract class Titulo implements Serializable, HistoricStore {
         historico.actualizar(valor, compras, ventas);
 
 
+    }
+
+    @Override
+    public String toString() {
+        return this.simbolo + " (" + this.valor + ") | ( "
+                + getVolumenEnCirculacion() + "/" + getVolumen() + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Titulo))
+            return false;
+
+        Titulo titulo = (Titulo) o;
+
+        if (Double.compare(titulo.valorInicial, valorInicial) != 0)
+            return false;
+        return simbolo.equals(titulo.simbolo);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = simbolo.hashCode();
+        temp = Double.doubleToLongBits(valorInicial);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
 }

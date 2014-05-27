@@ -8,8 +8,8 @@ public class InputHelper {
     private Console c;
 
 
-    public InputHelper(Console c) {
-        this.c = c;
+    public InputHelper() {
+        this.c = System.console();
     }
 
     private String ask(String m) {

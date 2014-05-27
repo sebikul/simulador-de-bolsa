@@ -78,35 +78,6 @@ public class Inversor implements Serializable, HistoricStore {
         return cartera;
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o)
-//            return true;
-//        if (o == null || getClass() != o.getClass())
-//            return false;
-//
-//        Inversor inversor = (Inversor) o;
-//
-//        if (Double.compare(inversor.capitalInicial, capitalInicial) != 0)
-//            return false;
-//        if (!agente.equals(inversor.agente))
-//            return false;
-//        if (!nombre.equals(inversor.nombre))
-//            return false;
-//
-//        return true;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int result;
-//        long temp;
-//        result = nombre.hashCode();
-//        result = 31 * result + agente.hashCode();
-//        temp = Double.doubleToLongBits(capitalInicial);
-//        result = 31 * result + (int) (temp ^ (temp >>> 32));
-//        return result;
-//    }
 
     /**
      * Devuelve el capital actual del inversor.
@@ -140,15 +111,6 @@ public class Inversor implements Serializable, HistoricStore {
         }
 
         return ret;
-    }
-
-    /**
-     * Devuelve el riesgo del inversor.
-     *
-     * @return Riesgo del inversor.
-     */
-    public final double getRiesgo() {
-        return riesgo;
     }
 
     /**
@@ -226,8 +188,8 @@ public class Inversor implements Serializable, HistoricStore {
      *
      * @return True si el inversor desea realizar una compra/venta.
      */
-    private boolean deseaInvertir(Titulo titulo) {
-        return (Math.random() < riesgo);
+    private boolean deseaInvertir() {
+        return (Math.random() < calcularRiesgoTotal());
     }
 
     /**
@@ -241,9 +203,9 @@ public class Inversor implements Serializable, HistoricStore {
         HashMap<Titulo, Integer> elecciones = new HashMap<Titulo, Integer>();
 
         for (Titulo titulo : mercado.getTitulos().values()) {
-            if (deseaInvertir(titulo)) {
+            if (deseaInvertir()) {
 
-                int cantidad = ((int) (capital / titulo.getValor() * riesgo)) + 1;
+                int cantidad = ((int) (capital / titulo.getValor() * calcularRiesgoTotal())) + 1;
 
                 assert cantidad >= 1;
 
@@ -265,11 +227,11 @@ public class Inversor implements Serializable, HistoricStore {
 
         for (Map.Entry<Titulo, Integer> entrada : cartera.entrySet()) {
 
-            if (entrada.getValue() > 0 && deseaInvertir(entrada.getKey())) {
+            if (entrada.getValue() > 0 && deseaInvertir()) {
 
                 Titulo titulo = entrada.getKey();
 
-                int cantidad = ((int) (capital / titulo.getValor() * riesgo)) + 1;
+                int cantidad = ((int) (capital / titulo.getValor() * calcularRiesgoTotal())) + 1;
 
                 int cuantoTengo = cartera.get(titulo);
 
@@ -284,6 +246,15 @@ public class Inversor implements Serializable, HistoricStore {
         }
 
         return Collections.unmodifiableMap(elecciones);
+    }
+
+    /**
+     * Devuelve el riesgo total del inversor.
+     *
+     * @return Riesgo total del inversor.
+     */
+    private double calcularRiesgoTotal() {
+        return (riesgo + agente.getRiesgoPersonal()) / 2;
     }
 
     /**

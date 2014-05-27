@@ -5,9 +5,6 @@ import poo.proyecto.modelos.Titulo;
 
 import java.util.Random;
 
-/**
- * Created by sekul on 26/05/14.
- */
 public class DummyAlgorithm implements Algorithm {
 
     /**
@@ -22,21 +19,15 @@ public class DummyAlgorithm implements Algorithm {
         this.historico = historico;
     }
 
-    public double getDiferencial() {
-
-        double valor = historico.get(historico.size() - 1).getValor();
-
-        return valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER * 10);
-
-    }
-
     @Override
     public double getNuevoPrecioCompra(int cantidad) {
         double valor = historico.get(historico.size() - 1).getValor();
 
         double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER);
 
-        return valor + diff;
+        //System.out.println("" + valor + " --> " + (valor + diff * cantidad));
+
+        return valor + diff * cantidad;
     }
 
     @Override
@@ -44,9 +35,12 @@ public class DummyAlgorithm implements Algorithm {
 
         double valor = historico.get(historico.size() - 1).getValor();
 
-        double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER * 10);
+        double diff = valor * rdm.nextGaussian() / (Titulo.PRICE_NORMALIZER);
 
-        return valor - diff;
+        //System.out.println("" + valor + " --> " + (valor - diff * cantidad));
+
+
+        return valor - diff * cantidad;
     }
 
     @Override

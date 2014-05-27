@@ -82,22 +82,6 @@ public class AgenteDeBolsa implements Serializable {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        AgenteDeBolsa that = (AgenteDeBolsa) o;
-
-        return nombre.equals(that.nombre);
-    }
-
-    @Override
-    public int hashCode() {
-        return nombre.hashCode();
-    }
 
     /**
      * Notifica al agente de bolsa que comenzo una nueva iteracion.
@@ -236,20 +220,6 @@ public class AgenteDeBolsa implements Serializable {
         return riesgoPersonal;
     }
 
-    public String printDebugInfo() {
-
-        String ret = "Nombre:\t" + this.nombre + "\nClientes:\n\n";
-
-        for (Inversor inversor : capitalClientes.keySet()) {
-
-            ret += inversor.printDebugInfo() + "\n\n";
-
-        }
-
-        return ret;
-
-    }
-
     /**
      * Notifica al agente que finalizo el ciclo.
      */
@@ -261,7 +231,31 @@ public class AgenteDeBolsa implements Serializable {
 
     }
 
+    /**
+     * Devuelve el nombre del agente de bolsa.
+     *
+     * @return Nombre del agente de bolsa,
+     */
     public String getNombre() {
         return nombre;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        AgenteDeBolsa that = (AgenteDeBolsa) o;
+
+        return nombre.equals(that.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return nombre.hashCode();
+    }
+
 }
