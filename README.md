@@ -3,6 +3,8 @@ Simulador de Bolsa
 
 ![alt tag](https://raw.github.com/sebikul/simulador-de-bolsa/master/Informe_TPE_POO.png)
 
+[javadoc](http://rawgit.com/sebikul/simulador-de-bolsa/master/help/index.html)
+
 Simulador
 ---------
 Representa una simulación. Almacena los agentes de bolsa que operaran
